@@ -1,21 +1,24 @@
 #define NOMINMAX
 #include "pch.h"
 #include "clipper2/clipper.h"
-#include "clipper2/clipper.export.h"
+//#include "clipper2/clipper.export.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+//BOOL APIENTRY DllMain( HMODULE hModule,
+//                       DWORD  ul_reason_for_call,
+//                       LPVOID lpReserved
+//                     )
+//{
+//    switch (ul_reason_for_call)
+//    {
+//    case DLL_PROCESS_ATTACH:
+//    case DLL_THREAD_ATTACH:
+//    case DLL_THREAD_DETACH:
+//    case DLL_PROCESS_DETACH:
+//        break;
+//    }
+//    return TRUE;
+//}
 
+// to debug
+//c++ ->预处理器->预处理器定义->_CONSOLE
+//链接器->系统->子系统-> 选控制台

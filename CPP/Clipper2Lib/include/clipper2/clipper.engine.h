@@ -210,7 +210,7 @@ namespace Clipper2Lib {
 		std::vector<Vertex*> vertex_lists_;
 		std::priority_queue<int64_t> scanline_list_;
 		IntersectNodeList intersect_nodes_;
-    HorzSegmentList horz_seg_list_;
+		HorzSegmentList horz_seg_list_;
 		std::vector<HorzJoin> horz_join_list_;
 		void Reset();
 		inline void InsertScanline(int64_t y);

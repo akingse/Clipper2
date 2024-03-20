@@ -16,6 +16,15 @@
     <ClCompile Include="pch.cpp">
       <Filter>clipper</Filter>
     </ClCompile>
+    <ClCompile Include="test_main.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test_time.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -41,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

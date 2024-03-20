@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>Clipper2_64</TargetName>
-    <IncludePath>..\..\CPP\Clipper2Lib\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\CPP\Clipper2Lib\include;C:\Users\Aking\source\repos\TPL\eigen-3.4.0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>Clipper2_32</TargetName>
@@ -84,7 +84,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>Clipper2_64</TargetName>
-    <IncludePath>..\..\CPP\Clipper2Lib\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\CPP\Clipper2Lib\include;C:\Users\Aking\source\repos\TPL\eigen-3.4.0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,11 +132,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
@@ -169,15 +169,19 @@
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.h" />
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.offset.h" />
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.rectclip.h" />
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.cpp" />
     <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.engine.cpp" />
     <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.offset.cpp" />
     <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.rectclip.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="test_main.cpp" />
+    <ClCompile Include="test_time.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

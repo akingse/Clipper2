@@ -11,3 +11,11 @@
 #include "framework.h"
 
 #endif //PCH_H
+
+#define CLIPPER_DLLEXPORT_DEFINE
+#include "clipper2/clipper.h" //without clipper.export
+#include <random>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <Eigen/Dense> 
