@@ -1,8 +1,0 @@
-﻿  clipper.engine.cpp
-  clipper.offset.cpp
-  clipper.rectclip.cpp
-  dllmain.cpp
-  pch.cpp
-  正在生成代码...
-    正在创建库 D:\Alluser\akingse\repos\Clipper2\DLL\CPP_DLL\x64\Debug\Clipper2_64.lib 和对象 D:\Alluser\akingse\repos\Clipper2\DLL\CPP_DLL\x64\Debug\Clipper2_64.exp
-  Clipper2_Export.vcxproj -> D:\Alluser\akingse\repos\Clipper2\DLL\CPP_DLL\x64\Debug\Clipper2_64.dll
