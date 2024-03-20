@@ -1320,7 +1320,7 @@ namespace Clipper2Lib {
 
   inline void ClipperBase::PushHorz(Active& e)
   {
-    e.next_in_sel = (sel_ ? sel_ : nullptr);
+    e.next_in_sel = sel_; //(sel_ ? sel_ : nullptr);
     sel_ = &e;
   }
 
@@ -1328,7 +1328,8 @@ namespace Clipper2Lib {
   inline bool ClipperBase::PopHorz(Active*& e)
   {
     e = sel_;
-    if (!e) return false;
+    if (!e) 
+        return false;
     sel_ = sel_->next_in_sel;
     return true;
   }
@@ -2086,19 +2087,23 @@ namespace Clipper2Lib {
     {
       InsertLocalMinimaIntoAEL(y);
       Active* e;
-      while (PopHorz(e)) DoHorizontal(*e);
+      while (PopHorz(e)) 
+          DoHorizontal(*e);
       if (horz_seg_list_.size() > 0)
       {
         ConvertHorzSegsToJoins();
         horz_seg_list_.clear();
       }
       bot_y_ = y;  // bot_y_ == bottom of scanbeam
-      if (!PopScanline(y)) break;  // y new top of scanbeam
+      if (!PopScanline(y)) 
+          break;  // y new top of scanbeam
       DoIntersections(y);
       DoTopOfScanbeam(y);
-      while (PopHorz(e)) DoHorizontal(*e);
+      while (PopHorz(e)) 
+          DoHorizontal(*e);
     }
-    if (succeeded_) ProcessHorzJoins();
+    if (succeeded_) 
+        ProcessHorzJoins();
     return succeeded_;
   }
 
@@ -2694,7 +2699,8 @@ namespace Clipper2Lib {
             //}
 
           //INTERMEDIATE VERTEX ...
-          if (IsHotEdge(*e)) AddOutPt(*e, e->top);
+          if (IsHotEdge(*e)) 
+              AddOutPt(*e, e->top);
           UpdateEdgeIntoAEL(e);
           if (IsHorizontal(*e))
             PushHorz(*e);  // horizontals are processed later
@@ -2715,7 +2721,8 @@ namespace Clipper2Lib {
     next_e = e.next_in_ael;
     if (IsOpenEnd(e))
     {
-      if (IsHotEdge(e)) AddOutPt(e, e.top);
+      if (IsHotEdge(e)) 
+          AddOutPt(e, e.top);
       if (!IsHorizontal(e))
       {
         if (IsHotEdge(e))

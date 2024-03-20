@@ -8,209 +8,209 @@
 using namespace Clipper2Lib;
 using namespace Clipper;
 
-namespace Clipper2 //convert function, copy from clipper.h
-{
-    template <typename T>
-    struct Point
-    {
-        T x;
-        T y;
-        Point() = default;
-        Point(T _x, T _y) :x(_x), y(_y) {}
-    };
-    //using PointD = Point<double>;
-    template <typename T>
-    using Path = std::vector<Point<T>>;
-    template <typename T>
-    using Paths = std::vector<Path<T>>;
+//namespace Clipper //convert function, copy from clipper.h
+//{
+//    template <typename T>
+//    struct Point
+//    {
+//        T x;
+//        T y;
+//        Point() = default;
+//        Point(T _x, T _y) :x(_x), y(_y) {}
+//    };
+//    //using PointD = Point<double>;
+//    template <typename T>
+//    using Path = std::vector<Point<T>>;
+//    template <typename T>
+//    using Paths = std::vector<Path<T>>;
+//
+//    using PathD = Path<double>;
+//    using PathsD = std::vector<PathD>;
+//
+//    namespace details
+//    {
+//        template<typename T, typename U>
+//        inline void MakePathGeneric(const T list, size_t size,
+//            std::vector<U>& result)
+//        {
+//            for (size_t i = 0; i < size; ++i)
+//#ifdef USINGZ
+//                result[i / 2] = U{ list[i], list[++i], 0 };
+//#else
+//                result[i / 2] = U{ list[i], list[++i] };
+//#endif
+//        }
+//
+//    } // end details namespace
+//
+//    template<typename T, std::size_t N>
+//    inline PathD MakePathD(const T(&list)[N])
+//    {
+//        // Make the compiler error on unpaired value (i.e. no runtime effects).
+//        static_assert(N % 2 == 0, "MakePath requires an even number of arguments");
+//        PathD result(N / 2);
+//        details::MakePathGeneric(list, N, result);
+//        return result;
+//    }
+//
+//    template <typename T>
+//    static void GetPathCountAndCPathsArrayLen(const Paths<T>& paths,
+//        size_t& cnt, size_t& array_len)
+//    {
+//        array_len = 2;
+//        cnt = 0;
+//        for (const Path<T>& path : paths)
+//            if (path.size())
+//            {
+//                array_len += path.size() * 2 + 2;
+//                ++cnt;
+//            }
+//    }
+//
+//    template <typename T>
+//    static T* CreateCPaths(const Paths<T>& paths)
+//    {
+//        size_t cnt, array_len;
+//        GetPathCountAndCPathsArrayLen(paths, cnt, array_len);
+//        T* result = new T[array_len], * v = result;
+//        *v++ = array_len;
+//        *v++ = cnt;
+//        for (const Path<T>& path : paths)
+//        {
+//            if (!path.size()) continue;
+//            *v++ = path.size();
+//            *v++ = 0;
+//            for (const Point<T>& pt : path)
+//            {
+//                *v++ = pt.x;
+//                *v++ = pt.y;
+//            }
+//        }
+//        return result;
+//    }
+//
+//    template <typename T>
+//    static Paths<T> ConvertCPaths(T* paths)
+//    {
+//        Paths<T> result;
+//        if (!paths) return result;
+//        T* v = paths; ++v;
+//        size_t cnt = *v++;
+//        result.reserve(cnt);
+//        for (size_t i = 0; i < cnt; ++i)
+//        {
+//            size_t cnt2 = *v;
+//            v += 2;
+//            Path<T> path;
+//            path.reserve(cnt2);
+//            for (size_t j = 0; j < cnt2; ++j)
+//            {
+//                T x = *v++, y = *v++;
+//                path.push_back(Point<T>(x, y));
+//            }
+//            result.push_back(path);
+//        }
+//        return result;
+//    }
+//}
 
-    using PathD = Path<double>;
-    using PathsD = std::vector<PathD>;
-
-    namespace details
-    {
-        template<typename T, typename U>
-        inline void MakePathGeneric(const T list, size_t size,
-            std::vector<U>& result)
-        {
-            for (size_t i = 0; i < size; ++i)
-#ifdef USINGZ
-                result[i / 2] = U{ list[i], list[++i], 0 };
-#else
-                result[i / 2] = U{ list[i], list[++i] };
-#endif
-        }
-
-    } // end details namespace
-
-    template<typename T, std::size_t N>
-    inline PathD MakePathD(const T(&list)[N])
-    {
-        // Make the compiler error on unpaired value (i.e. no runtime effects).
-        static_assert(N % 2 == 0, "MakePath requires an even number of arguments");
-        PathD result(N / 2);
-        details::MakePathGeneric(list, N, result);
-        return result;
-    }
-
-    template <typename T>
-    static void GetPathCountAndCPathsArrayLen(const Paths<T>& paths,
-        size_t& cnt, size_t& array_len)
-    {
-        array_len = 2;
-        cnt = 0;
-        for (const Path<T>& path : paths)
-            if (path.size())
-            {
-                array_len += path.size() * 2 + 2;
-                ++cnt;
-            }
-    }
-
-    template <typename T>
-    static T* CreateCPaths(const Paths<T>& paths)
-    {
-        size_t cnt, array_len;
-        GetPathCountAndCPathsArrayLen(paths, cnt, array_len);
-        T* result = new T[array_len], * v = result;
-        *v++ = array_len;
-        *v++ = cnt;
-        for (const Path<T>& path : paths)
-        {
-            if (!path.size()) continue;
-            *v++ = path.size();
-            *v++ = 0;
-            for (const Point<T>& pt : path)
-            {
-                *v++ = pt.x;
-                *v++ = pt.y;
-            }
-        }
-        return result;
-    }
-
-    template <typename T>
-    static Paths<T> ConvertCPaths(T* paths)
-    {
-        Paths<T> result;
-        if (!paths) return result;
-        T* v = paths; ++v;
-        size_t cnt = *v++;
-        result.reserve(cnt);
-        for (size_t i = 0; i < cnt; ++i)
-        {
-            size_t cnt2 = *v;
-            v += 2;
-            Path<T> path;
-            path.reserve(cnt2);
-            for (size_t j = 0; j < cnt2; ++j)
-            {
-                T x = *v++, y = *v++;
-                path.push_back(Point<T>(x, y));
-            }
-            result.push_back(path);
-        }
-        return result;
-    }
-}
-
-namespace Clipper2D //specialization
-{
-    struct PointD
-    {
-        double x;
-        double y;
-        PointD() = default;
-        PointD(double _x, double _y) :x(_x), y(_y) {}
-    };
-    using PathD = std::vector<PointD>; //Path<double>;
-    using PathsD = std::vector<PathD>;
-
-    //template function
-    //template<typename T, typename U>
-    inline constexpr void MakePathGeneric(const double* list, size_t size, std::vector<PointD>& result)
-    {
-        for (size_t i = 0; i < size; ++i)
-#ifdef USINGZ
-            result[i / 2] = PointD{ list[i], list[++i], 0 };
-#else
-            result[i / 2] = PointD{ list[i], list[++i] };
-#endif
-    }
-
-    //template<typename T, std::size_t N>
-    inline PathD MakePathD(const double* list, size_t N)
-    {
-        PathD result(N / 2);
-        MakePathGeneric(list, N, result);
-        return result;
-    }
-
-    //template <typename T>
-    static void GetPathCountAndCPathsArrayLen(const PathsD& paths,
-        size_t& cnt, size_t& array_len)
-    {
-        array_len = 2;
-        cnt = 0;
-        for (const PathD& path : paths)
-        {
-            if (path.size()) //!empty
-            {
-                array_len += path.size() * 2 + 2;
-                ++cnt;
-            }
-        }
-    }
-
-    //template <typename T>
-    static double* CreateCPaths(const PathsD& paths)
-    {
-        size_t cnt, array_len;
-        GetPathCountAndCPathsArrayLen(paths, cnt, array_len);
-        double* result = new double[array_len];
-        double* v = result;
-        *v++ = array_len;
-        *v++ = cnt;
-        for (const PathD& path : paths)
-        {
-            if (!path.size())
-                continue;
-            *v++ = path.size();
-            *v++ = 0;
-            for (const PointD& pt : path)
-            {
-                *v++ = pt.x;
-                *v++ = pt.y;
-            }
-        }
-        return result;
-    }
-
-    //template <typename T>
-    static PathsD ConvertCPaths(double* paths)
-    {
-        PathsD result;
-        if (!paths)
-            return result;
-        double* v = paths; ++v;
-        size_t cnt = *v++;
-        result.reserve(cnt);
-        for (size_t i = 0; i < cnt; ++i)
-        {
-            size_t cnt2 = *v;
-            v += 2;
-            PathD path;
-            path.reserve(cnt2);
-            for (size_t j = 0; j < cnt2; ++j)
-            {
-                double x = *v++, y = *v++;
-                path.push_back(PointD(x, y));
-            }
-            result.push_back(path);
-        }
-        return result;
-    }
-}
+//namespace Clipper //specialization
+//{
+//    struct PointD
+//    {
+//        double x;
+//        double y;
+//        PointD() = default;
+//        PointD(double _x, double _y) :x(_x), y(_y) {}
+//    };
+//    using PathD = std::vector<PointD>; //Path<double>;
+//    using PathsD = std::vector<PathD>;
+//
+//    //template function
+//    //template<typename T, typename U>
+//    inline constexpr void MakePathGeneric(const double* list, size_t size, std::vector<PointD>& result)
+//    {
+//        for (size_t i = 0; i < size; ++i)
+//#ifdef USINGZ
+//            result[i / 2] = PointD{ list[i], list[++i], 0 };
+//#else
+//            result[i / 2] = PointD{ list[i], list[++i] };
+//#endif
+//    }
+//
+//    //template<typename T, std::size_t N>
+//    inline PathD MakePathD(const double* list, size_t N)
+//    {
+//        PathD result(N / 2);
+//        MakePathGeneric(list, N, result);
+//        return result;
+//    }
+//
+//    //template <typename T>
+//    static void GetPathCountAndCPathsArrayLen(const PathsD& paths,
+//        size_t& cnt, size_t& array_len)
+//    {
+//        array_len = 2;
+//        cnt = 0;
+//        for (const PathD& path : paths)
+//        {
+//            if (path.size()) //!empty
+//            {
+//                array_len += path.size() * 2 + 2;
+//                ++cnt;
+//            }
+//        }
+//    }
+//
+//    //template <typename T>
+//    static double* CreateCPaths(const PathsD& paths)
+//    {
+//        size_t cnt, array_len;
+//        GetPathCountAndCPathsArrayLen(paths, cnt, array_len);
+//        double* result = new double[array_len];
+//        double* v = result;
+//        *v++ = array_len;
+//        *v++ = cnt;
+//        for (const PathD& path : paths)
+//        {
+//            if (!path.size())
+//                continue;
+//            *v++ = path.size();
+//            *v++ = 0;
+//            for (const PointD& pt : path)
+//            {
+//                *v++ = pt.x;
+//                *v++ = pt.y;
+//            }
+//        }
+//        return result;
+//    }
+//
+//    //template <typename T>
+//    static PathsD ConvertCPaths(double* paths)
+//    {
+//        PathsD result;
+//        if (!paths)
+//            return result;
+//        double* v = paths; ++v;
+//        size_t cnt = *v++;
+//        result.reserve(cnt);
+//        for (size_t i = 0; i < cnt; ++i)
+//        {
+//            size_t cnt2 = *v;
+//            v += 2;
+//            PathD path;
+//            path.reserve(cnt2);
+//            for (size_t j = 0; j < cnt2; ++j)
+//            {
+//                double x = *v++, y = *v++;
+//                path.push_back(PointD(x, y));
+//            }
+//            result.push_back(path);
+//        }
+//        return result;
+//    }
+//}
 
 template <typename T>
 static void GetPathCountAndCPathsArrayLen(const Paths<T>& paths,
