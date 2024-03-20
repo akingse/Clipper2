@@ -2368,7 +2368,18 @@ namespace Clipper2Lib {
               if (tmp == left) break;
               tmp = tmp->prev_in_sel;
             }
-
+            // make near segments colliner
+            if (left->curr_x - right->curr_x < tolerance_)
+            {
+                double tolerance = tolerance_ * tolerance_;
+                if (DistanceSqr(left->bot, right->bot) < tolerance && DistanceSqr(left->top, right->top) < tolerance)
+                {
+                    left->bot = right->bot; //revise coordinate
+                    left->top = right->top;
+                    left = left->next_in_sel; //else procedure
+                    continue;
+                }
+            }
             tmp = right;
             right = ExtractFromSEL(tmp);
             l_end = right;
@@ -2668,6 +2679,20 @@ namespace Clipper2Lib {
         }
         else
         {
+            ////judge almost horizon
+            //Point64& bot = e->vertex_top->pt;
+            //Point64& top = NextVertex(*e)->pt;
+            //if (abs(bot.y - top.y) < tolerance_) // with tolerance
+            //{
+            //    if (scanline_near_ != 0)
+            //        scanline_near_ = 10;
+            //    bot.y -= scanline_near_;
+            //    top.y -= scanline_near_;
+            //    e->top = bot;
+            //    scanline_near_ = 0;
+            //    //continue;
+            //}
+
           //INTERMEDIATE VERTEX ...
           if (IsHotEdge(*e)) AddOutPt(*e, e->top);
           UpdateEdgeIntoAEL(e);
@@ -2762,16 +2787,34 @@ namespace Clipper2Lib {
     if (!prev ||
       !IsHotEdge(e) || !IsHotEdge(*prev) ||
       IsHorizontal(e) || IsHorizontal(*prev) ||
-      IsOpen(e) || IsOpen(*prev) ) return;
-    if ((pt.y < e.top.y + 2 || pt.y < prev->top.y + 2) &&
-      ((e.bot.y > pt.y) || (prev->bot.y > pt.y))) return; // avoid trivial joins
+      IsOpen(e) || IsOpen(*prev) ) 
+        return;
+    if ((pt.y < e.top.y + 2 || pt.y < prev->top.y + 2) && ((e.bot.y > pt.y) || (prev->bot.y > pt.y))) 
+        return; // avoid trivial joins
 
     if (check_curr_x)
     {
-      if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > 0.25) return;
+      if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > tolerance_ * tolerance_) // 0.25==0.5^2
+          return;
     }
-    else if (e.curr_x != prev->curr_x) return;
-    if (CrossProduct(e.top, pt, prev->top)) return;
+    //else if (e.curr_x != prev->curr_x) return;
+    else if (tolerance_ < abs(e.curr_x - prev->curr_x))
+        return;
+    //if (CrossProduct(e.top, pt, prev->top)) return;
+    double area = CrossProduct(e.top, pt, prev->top);
+    if (area)
+    {
+        double n0 = DistanceSqr(e.top, pt);
+        double n1 = DistanceSqr(e.top, prev->top);
+        double n2 = DistanceSqr(pt, prev->top);
+        double tolerance = tolerance_ * tolerance_;
+        if (tolerance < n0 && tolerance < n1 && tolerance < n2)
+        {
+            double length = std::max(std::max(n0, n1), n2);
+            if (tolerance * length < area * area)
+                return;
+        }
+    }
 
     if (e.outrec->idx == prev->outrec->idx)
       AddLocalMaxPoly(*prev, e, pt);
@@ -2791,16 +2834,32 @@ namespace Clipper2Lib {
       !IsHotEdge(e) || !IsHotEdge(*next) ||
       IsHorizontal(e) || IsHorizontal(*next) ||
       IsOpen(e) || IsOpen(*next)) return;
-    if ((pt.y < e.top.y +2 || pt.y < next->top.y +2) &&
-      ((e.bot.y > pt.y) || (next->bot.y > pt.y))) return; // avoid trivial joins
+    if ((pt.y < e.top.y +2 || pt.y < next->top.y +2) && ((e.bot.y > pt.y) || (next->bot.y > pt.y))) 
+        return; // avoid trivial joins
 
     if (check_curr_x)
     {
-      if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > 0.35) return;
+      if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > tolerance_ * tolerance_) // 0.35
+          return;
     }
-    else if (e.curr_x != next->curr_x) return;
-    if (CrossProduct(e.top, pt, next->top)) return;
-
+    //else if (e.curr_x != next->curr_x) return;
+    else if (tolerance_ < abs(e.curr_x - next->curr_x))
+        return;
+    //if (CrossProduct(e.top, pt, next->top)) return;
+    double area = CrossProduct(e.top, pt, next->top);
+    if (area)
+    {
+        double n0 = DistanceSqr(e.top, pt);
+        double n1 = DistanceSqr(e.top, next->top);
+        double n2 = DistanceSqr(pt, next->top);
+        double tolerance = tolerance_ * tolerance_;
+        if (tolerance < n0 && tolerance < n1 && tolerance < n2)
+        {
+            double length = std::max(std::max(n0, n1), n2);
+            if (tolerance * length < area * area)
+                return;
+        }
+    }
     if (e.outrec->idx == next->outrec->idx)
       AddLocalMaxPoly(e, *next, pt);
     else if (e.outrec->idx < next->outrec->idx)

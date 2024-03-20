@@ -268,6 +268,9 @@ namespace Clipper2Lib {
 		bool has_open_paths_ = false;
 		bool succeeded_ = true;
 		OutRecList outrec_list_; //pointers in case list memory reallocated
+		// for tolerance
+		int tolerance_ = 100; //std::pow(10, 2)
+		int scanline_near_ = 0; //to process horizon parallel
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);
 		void CleanCollinear(OutRec* outrec);
 		bool CheckBounds(OutRec* outrec);
