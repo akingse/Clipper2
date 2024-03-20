@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.engine.cpp">
+      <Filter>clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.offset.cpp">
+      <Filter>clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.rectclip.cpp">
+      <Filter>clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>clipper</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.core.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.engine.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.export.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.offset.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.rectclip.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>clipper</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="clipper">
+      <UniqueIdentifier>{4509b343-d5f2-4513-9c70-56d1dd091fae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{1a395c97-1801-4537-989b-1e981577485d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
