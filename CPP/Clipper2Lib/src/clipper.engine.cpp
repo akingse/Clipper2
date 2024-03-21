@@ -198,6 +198,13 @@ namespace Clipper2Lib {
       return ae.vertex_top->next->next;
   }
 
+  inline Vertex* PrevVertex(const Active& ae)
+  {
+      if (ae.wind_dx > 0)
+          return ae.vertex_top->prev;
+      else
+          return ae.vertex_top->next;
+  }
 
   inline Active* ExtractFromSEL(Active* ae)
   {
@@ -634,6 +641,7 @@ namespace Clipper2Lib {
 
       v->prev = nullptr;
       int cnt = 0;
+      //int64_t y = LLONG_MAX; //path[-1].y
       for (const Point64& pt : path)
       {
         if (prev_v)
@@ -643,6 +651,12 @@ namespace Clipper2Lib {
         }
         curr_v->prev = prev_v;
         curr_v->pt = pt;
+        //if (PathType::Subject == polytype && pt.y == y) //horizon
+        //{
+        //    curr_v->pt.y -= 10;
+        //    curr_v->prev->pt.y -= 10;
+        //}
+        //y = pt.y;
         curr_v->flags = VertexFlags::None;
         prev_v = curr_v++;
         cnt++;
@@ -870,11 +884,15 @@ namespace Clipper2Lib {
 
   bool ClipperBase::PopScanline(int64_t& y)
   {
-    if (scanline_list_.empty()) return false;
+    if (scanline_list_.empty()) 
+        return false;
     y = scanline_list_.top();
     scanline_list_.pop();
     while (!scanline_list_.empty() && y == scanline_list_.top())
       scanline_list_.pop();  // Pop duplicates.
+    // tolerance add
+    //if (!scanline_list_.empty() && y - scanline_list_.top() < tolerance_)
+    //    scanline_near_ = y - scanline_list_.top(); // >0
     return true;
   }
 
@@ -2081,8 +2099,8 @@ namespace Clipper2Lib {
     using_polytree_ = use_polytrees;
     Reset();
     int64_t y;
-    if (ct == ClipType::None || !PopScanline(y)) return true;
-
+    if (ct == ClipType::None || !PopScanline(y)) 
+        return true;
     while (succeeded_)
     {
       InsertLocalMinimaIntoAEL(y);
@@ -2092,8 +2110,10 @@ namespace Clipper2Lib {
       if (horz_seg_list_.size() > 0)
       {
         ConvertHorzSegsToJoins();
+        //if (scanline_near_ == 0)
         horz_seg_list_.clear();
       }
+      //scanline_near_ = 0;
       bot_y_ = y;  // bot_y_ == bottom of scanbeam
       if (!PopScanline(y)) 
           break;  // y new top of scanbeam
@@ -2169,10 +2189,10 @@ namespace Clipper2Lib {
 
   void ClipperBase::ConvertHorzSegsToJoins()
   {
-    auto j = std::count_if(horz_seg_list_.begin(),
-      horz_seg_list_.end(),
+    ptrdiff_t j = std::count_if(horz_seg_list_.begin(), horz_seg_list_.end(),
       [](HorzSegment& hs) { return UpdateHorzSegment(hs); });
-    if (j < 2) return;
+    if (j < 2) 
+        return;
     std::stable_sort(horz_seg_list_.begin(), horz_seg_list_.end(), HorzSegSorter());
 
     HorzSegmentList::iterator hs1 = horz_seg_list_.begin(), hs2;
@@ -2687,15 +2707,14 @@ namespace Clipper2Lib {
             ////judge almost horizon
             //Point64& bot = e->vertex_top->pt;
             //Point64& top = NextVertex(*e)->pt;
-            //if (abs(bot.y - top.y) < tolerance_) // with tolerance
+            //if (bot.y == top.y) //IsHorizontal with tolerance
             //{
-            //    if (scanline_near_ != 0)
+            //    //if (scanline_near_ == 0) //scanline offset downward distance
             //        scanline_near_ = 10;
             //    bot.y -= scanline_near_;
             //    top.y -= scanline_near_;
             //    e->top = bot;
-            //    scanline_near_ = 0;
-            //    //continue;
+            //    //scanline_near_ = 0;
             //}
 
           //INTERMEDIATE VERTEX ...

@@ -5,16 +5,14 @@ int main()
 	return 0;
 }
 
-#include "clipper2/clipper.h"
 #include "clipper2/clipperExportC.h"
 namespace Clipper
 {
+    typedef std::vector<std::vector<Eigen::Vector2d>> PathsEigen;
+
     static const uint8_t EvenOdd = 0, Intersection = 1, Union = 2, Difference = 3;
     static const int mdp = 8;
-    typedef std::vector<std::vector<Eigen::Vector2d>> PathsEigen;
-    static constexpr double eps = FLT_EPSILON; //1e-7
-
-
+    static constexpr double eps = 5*1e-8; //FLT_EPSILON; //
 }
 
 using namespace std;
@@ -304,18 +302,30 @@ static void test4()
         Vector2d(0,10),
     } };
 
-    //poly1 = { { //collinar
-    //    Vector2d(0,0),
-    //    Vector2d(10,0),
+    poly1 = { { //collinar
+        Vector2d(0,0),
+        Vector2d(15,0),
+        Vector2d(0,-10),
+    } };
+
+    ////with small gap
+    //poly1 = { {
+    //    Vector2d(0,0 - eps),
+    //    Vector2d(10,0 - eps),
     //    Vector2d(0,-10),
     //} };
 
-    poly1 = { {
-        //with small gap
-        Vector2d(0,0 - eps),
-        Vector2d(15,0 - eps),
-        Vector2d(0,-10),
-    } };
+    //poly1 = { {
+    //    Vector2d(5,0 - eps),
+    //    Vector2d(15,0 - eps),
+    //    Vector2d(0,-10),
+    //} };
+
+    //poly1 = { {
+    //    Vector2d(-5,0 - eps),
+    //    Vector2d(15,0 - eps),
+    //    Vector2d(0,-10),
+    //} };
 
     //poly1 = { {
     //    // compat next isnot horizon

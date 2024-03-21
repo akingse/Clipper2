@@ -204,7 +204,7 @@ namespace Clipper2Lib {
 		bool minima_list_sorted_ = false;
 		bool using_polytree_ = false;
 		Active* actives_ = nullptr;
-		Active *sel_ = nullptr;
+		Active* sel_ = nullptr;
 		LocalMinimaList minima_list_;		//pointers in case of memory reallocs
 		LocalMinimaList::iterator current_locmin_iter_;
 		std::vector<Vertex*> vertex_lists_;
