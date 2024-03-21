@@ -15,6 +15,8 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <map>
+#include <tuple>
 #include <functional>
 #include <numeric>
 #include <memory>
@@ -157,6 +159,10 @@ namespace Clipper2Lib {
 		bool left_to_right = true;
 		HorzSegment() : left_op(nullptr) { }
 		explicit HorzSegment(OutPt* op) : left_op(op) { }
+		bool isValid() const
+		{
+			return left_op; //!=nullptr
+		}
 	};
 
 	struct HorzJoin {
@@ -270,7 +276,9 @@ namespace Clipper2Lib {
 		OutRecList outrec_list_; //pointers in case list memory reallocated
 		// for tolerance
 		int tolerance_ = 100; //std::pow(10, 2)
-		int scanline_near_ = 0; //to process horizon parallel
+		//int scanline_near_ = 0; //to process horizon parallel
+		//HorzSegment horizon_store_ = HorzSegment();
+		std::map<int64_t, std::pair<OutPt*, HorzSegment>> horizon_record_;
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);
 		void CleanCollinear(OutRec* outrec);
 		bool CheckBounds(OutRec* outrec);

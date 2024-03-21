@@ -1542,7 +1542,8 @@ namespace Clipper2Lib {
     new_op->prev = op_front;
     new_op->next = op_back;
     op_front->next = new_op;
-    if (to_front) outrec->pts = new_op;
+    if (to_front) 
+        outrec->pts = new_op;
     return new_op;
   }
 
@@ -2109,9 +2110,25 @@ namespace Clipper2Lib {
           DoHorizontal(*e);
       if (horz_seg_list_.size() > 0)
       {
+          for (auto& iter : horizon_record_)
+          {
+              int64_t tolerance = iter.first - y;
+              if (0 < tolerance && tolerance < tolerance_) //unidirection
+              {
+                  HorzSegment& horzsegm = iter.second.second;
+                  horzsegm.left_op->pt.y -= tolerance;
+                  horzsegm.left_op->next->pt.y -= tolerance;
+                  horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm);
+                  //OutPt* rec = iter.second.first;
+                  //rec->pt.y -= tolerance;
+                  //rec->next->pt.y -= tolerance;
+                  break;
+              }
+          }
         ConvertHorzSegsToJoins();
-        //if (scanline_near_ == 0)
         horz_seg_list_.clear();
+        if (horizon_record_.find(y) != horizon_record_.end() && horizon_record_[y].second.left_op) // !=null
+            horizon_record_[y].second.left_op->horz = nullptr;// clear
       }
       //scanline_near_ = 0;
       bot_y_ = y;  // bot_y_ == bottom of scanbeam
@@ -2176,10 +2193,7 @@ namespace Clipper2Lib {
       while (opN->next != opP && opN->next->pt.y == curr_y)
         opN = opN->next;
     }
-    bool result =
-      SetHorzSegHeadingForward(hs, opP, opN) &&
-      !hs.left_op->horz;
-
+    bool result = SetHorzSegHeadingForward(hs, opP, opN) && !hs.left_op->horz;
     if (result)
       hs.left_op->horz = &hs;
     else
@@ -2189,8 +2203,7 @@ namespace Clipper2Lib {
 
   void ClipperBase::ConvertHorzSegsToJoins()
   {
-    ptrdiff_t j = std::count_if(horz_seg_list_.begin(), horz_seg_list_.end(),
-      [](HorzSegment& hs) { return UpdateHorzSegment(hs); });
+    ptrdiff_t j = std::count_if(horz_seg_list_.begin(), horz_seg_list_.end(), [](HorzSegment& hs) { return UpdateHorzSegment(hs); });
     if (j < 2) 
         return;
     std::stable_sort(horz_seg_list_.begin(), horz_seg_list_.end(), HorzSegSorter());
@@ -2558,14 +2571,17 @@ namespace Clipper2Lib {
       OutPt* op = AddOutPt(horz, Point64(horz.curr_x, y));
 #endif
       AddTrialHorzJoin(op);
+      if (horizon_record_.find(y) != horizon_record_.end())
+          horizon_record_[y].second = HorzSegment(op); // horz_seg_list_.back();//
     }
 
     while (true) // loop through consec. horizontal edges
     {
       Active* e;
-      if (is_left_to_right) e = horz.next_in_ael;
-      else e = horz.prev_in_ael;
-
+      if (is_left_to_right) 
+          e = horz.next_in_ael;
+      else 
+          e = horz.prev_in_ael;
       while (e)
       {
         if (e->vertex_top == vertex_max)
@@ -2718,11 +2734,15 @@ namespace Clipper2Lib {
             //}
 
           //INTERMEDIATE VERTEX ...
-          if (IsHotEdge(*e)) 
-              AddOutPt(*e, e->top);
+          if (IsHotEdge(*e))
+            AddOutPt(*e, e->top);
           UpdateEdgeIntoAEL(e);
           if (IsHorizontal(*e))
+          {
             PushHorz(*e);  // horizontals are processed later
+            if (!outrec_list_.empty() && outrec_list_.back()->pts) // !=null
+                horizon_record_.emplace(y, std::pair<OutPt*, HorzSegment>{ outrec_list_.back()->pts, {} }); //record
+          }
         }
       }
       else // i.e. not the top of the edge

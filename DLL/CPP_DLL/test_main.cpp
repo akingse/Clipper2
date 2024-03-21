@@ -301,19 +301,24 @@ static void test4()
         Vector2d(10,0),
         Vector2d(0,10),
     } };
-
-    poly1 = { { //collinar
-        Vector2d(0,0),
-        Vector2d(15,0),
-        Vector2d(0,-10),
-    } };
-
-    ////with small gap
-    //poly1 = { {
+    //poly0 = { {
     //    Vector2d(0,0 - eps),
     //    Vector2d(10,0 - eps),
+    //    Vector2d(0,10),
+    //} };
+
+    //poly1 = { { //collinar
+    //    Vector2d(0,0),
+    //    Vector2d(15,0),
     //    Vector2d(0,-10),
     //} };
+
+    //with small gap
+    poly1 = { {
+        Vector2d(0,0 - eps),
+        Vector2d(10,0 - eps),
+        Vector2d(0,-10),
+    } };
 
     //poly1 = { {
     //    Vector2d(5,0 - eps),
@@ -356,6 +361,40 @@ static void test4()
     //    Vector2d(10,0),
     //    Vector2d(5,5 - eps),
     //} };
+    CPathsD c_solu = nullptr;
+
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //distingush
+    PathsEigen solution2 = convertCPaths(c_solu);
+    PathsD solution1 = ConvertCPaths(c_solu);
+    return;
+}
+
+//水平线误差-复杂
+static void test6()
+{
+    PathsEigen poly0;
+    PathsEigen poly1;
+
+    //两个水平边
+    poly0 = { {
+        Vector2d(0,0),
+        Vector2d(10,0),
+        Vector2d(0,10),
+    } };
+    //poly0 = { {
+    //    Vector2d(0,0 + eps),
+    //    Vector2d(10,0 + eps),
+    //    Vector2d(0,10),
+    //} };
+
+    poly1 = { { //collinar
+        Vector2d(0,0),
+        Vector2d(15,0),
+        Vector2d(20,10),
+        Vector2d(20,0),
+        Vector2d(0,-10),
+    } };
+
     CPathsD c_solu = nullptr;
 
     BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //distingush
@@ -408,8 +447,9 @@ static int _enrol = []()
     //test1();
     //test2();
     //test3();
-    test4();
     //test5();
+    test4();
+    //test6();
     return 0;
 }();
 
