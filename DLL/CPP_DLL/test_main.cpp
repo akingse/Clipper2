@@ -12,7 +12,7 @@ namespace Clipper
 
     static const uint8_t EvenOdd = 0, Intersection = 1, Union = 2, Difference = 3;
     static const int mdp = 8;
-    static constexpr double eps = 5*1e-8; //FLT_EPSILON; //
+    static constexpr double eps = 1e-8; //FLT_EPSILON; //
 }
 
 using namespace std;
@@ -364,7 +364,6 @@ static void test4()
     CPathsD c_solu = nullptr;
 
     BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //distingush
-    PathsEigen solution2 = convertCPaths(c_solu);
     PathsD solution1 = ConvertCPaths(c_solu);
     return;
 }
@@ -396,9 +395,8 @@ static void test6()
     } };
 
     CPathsD c_solu = nullptr;
-
     BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //distingush
-    PathsEigen solution2 = convertCPaths(c_solu);
+    //PathsEigen solution2 = convertCPaths(c_solu);
     PathsD solution1 = ConvertCPaths(c_solu);
     return;
 }
@@ -441,6 +439,31 @@ static void test5()
     return;
 }
 
+//¡Ω∂À∑÷¿Î
+static void test7()
+{
+    PathsEigen poly0;
+    PathsEigen poly1;
+    poly0 = { { //upper
+        Vector2d(7109.864100364, 189.168143176),//-
+        Vector2d(7165.356935344, 298.800392896),     //up
+        Vector2d(6194.089807894, 185.205059916),
+        Vector2d(6194.278057694, 184.221562696),//- min scanline
+    } };
+
+    poly1 = { { //under
+        Vector2d(7109.864100365, 189.168143169),
+        Vector2d(6194.278057715, 184.221562699),
+        Vector2d(6213.399798845, 084.321435249), //down
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    PathsD solution = ConvertCPaths(c_solu);
+
+    return;
+}
+
 static int _enrol = []()
 {
     //test0();
@@ -448,8 +471,9 @@ static int _enrol = []()
     //test2();
     //test3();
     //test5();
-    test4();
+    //test4();
     //test6();
+    test7();
     return 0;
 }();
 

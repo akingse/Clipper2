@@ -22,9 +22,9 @@
 #if defined(_MSC_VER) && ( defined(_M_AMD64) || defined(_M_X64) )
 #include <xmmintrin.h>
 #include <emmintrin.h>
-#define fmin(a,b) _mm_cvtsd_f64(_mm_min_sd(_mm_set_sd(a),_mm_set_sd(b)))
-#define fmax(a,b) _mm_cvtsd_f64(_mm_max_sd(_mm_set_sd(a),_mm_set_sd(b)))
-#define nearbyint(a) _mm_cvtsd_si64(_mm_set_sd(a)) /* Note: expression type is (int64_t) */
+//#define fmin(a,b) _mm_cvtsd_f64(_mm_min_sd(_mm_set_sd(a),_mm_set_sd(b)))
+//#define fmax(a,b) _mm_cvtsd_f64(_mm_max_sd(_mm_set_sd(a),_mm_set_sd(b)))
+//#define nearbyint(a) _mm_cvtsd_si64(_mm_set_sd(a)) /* Note: expression type is (int64_t) */
 #endif
 
 namespace Clipper2Lib {
@@ -130,11 +130,33 @@ namespace Clipper2Lib {
       return std::numeric_limits<double>::max();
   }
 
-  inline int64_t TopX(const Active& ae, const int64_t currentY)
+  inline void SetDx(Active& e)
   {
-    if ((currentY == ae.top.y) || (ae.top.x == ae.bot.x)) return ae.top.x;
-    else if (currentY == ae.bot.y) return ae.bot.x;
-    else return ae.bot.x + static_cast<int64_t>(nearbyint(ae.dx * (currentY - ae.bot.y)));
+      e.dx = GetDx(e.bot, e.top);
+  }
+
+  inline int64_t TopX(Active& ae, const int64_t currentY)
+  {
+//#ifdef nearbyint
+//#undef nearbyint
+//#endif
+    int64_t tolerance = 100;
+    if (ae.top.x == ae.bot.x)
+        return ae.top.x;
+    else if (0 <= ae.top.y - currentY && ae.top.y - currentY < tolerance) // ae upper
+    {
+        ae.top.y -= ae.top.y - currentY; //not change OutRec* value
+        SetDx(ae); //update k
+        return ae.top.x;
+    }
+    else if (0 <= ae.bot.y - currentY && ae.bot.y - currentY < tolerance) // ae upper
+    {
+        ae.bot.y -= ae.bot.y - currentY;
+        SetDx(ae); //update k
+        return ae.bot.x;
+    }
+    else
+        return ae.bot.x + static_cast<int64_t>(std::nearbyint(ae.dx * (currentY - ae.bot.y))); // abandon macro
     // nb: std::nearbyint (or std::round) substantially *improves* performance here
     // as it greatly improves the likelihood of edge adjacency in ProcessIntersectList().
   }
@@ -175,10 +197,10 @@ namespace Clipper2Lib {
     return e1.local_min->polytype == e2.local_min->polytype;
   }
 
-  inline void SetDx(Active& e)
-  {
-    e.dx = GetDx(e.bot, e.top);
-  }
+  //inline void SetDx(Active& e)
+  //{
+  //  e.dx = GetDx(e.bot, e.top);
+  //}
 
   inline Vertex* NextVertex(const Active& e)
   {
@@ -890,9 +912,6 @@ namespace Clipper2Lib {
     scanline_list_.pop();
     while (!scanline_list_.empty() && y == scanline_list_.top())
       scanline_list_.pop();  // Pop duplicates.
-    // tolerance add
-    //if (!scanline_list_.empty() && y - scanline_list_.top() < tolerance_)
-    //    scanline_near_ = y - scanline_list_.top(); // >0
     return true;
   }
 
@@ -2116,9 +2135,9 @@ namespace Clipper2Lib {
               if (0 < tolerance && tolerance < tolerance_) //unidirection
               {
                   HorzSegment& horzsegm = iter.second.second;
-                  horzsegm.left_op->pt.y -= tolerance;
+                  horzsegm.left_op->pt.y -= tolerance; //hold same pointer as OutPt* 
                   horzsegm.left_op->next->pt.y -= tolerance;
-                  horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm);
+                  horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm); //head insert
                   //OutPt* rec = iter.second.first;
                   //rec->pt.y -= tolerance;
                   //rec->next->pt.y -= tolerance;
@@ -2720,19 +2739,6 @@ namespace Clipper2Lib {
         }
         else
         {
-            ////judge almost horizon
-            //Point64& bot = e->vertex_top->pt;
-            //Point64& top = NextVertex(*e)->pt;
-            //if (bot.y == top.y) //IsHorizontal with tolerance
-            //{
-            //    //if (scanline_near_ == 0) //scanline offset downward distance
-            //        scanline_near_ = 10;
-            //    bot.y -= scanline_near_;
-            //    top.y -= scanline_near_;
-            //    e->top = bot;
-            //    //scanline_near_ = 0;
-            //}
-
           //INTERMEDIATE VERTEX ...
           if (IsHotEdge(*e))
             AddOutPt(*e, e->top);
