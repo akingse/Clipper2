@@ -276,9 +276,8 @@ namespace Clipper2Lib {
 		OutRecList outrec_list_; //pointers in case list memory reallocated
 		// for tolerance
 		int tolerance_ = 100; //std::pow(10, 2)
-		//int scanline_near_ = 0; //to process horizon parallel
-		//HorzSegment horizon_store_ = HorzSegment();
-		std::map<int64_t, std::pair<OutPt*, HorzSegment>> horizon_record_;
+		//std::map<int64_t, std::pair<OutPt*, HorzSegment>> horizon_record_;
+		std::map<int64_t, HorzSegment> horizon_record_; //to process horizon parallel
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);
 		void CleanCollinear(OutRec* outrec);
 		bool CheckBounds(OutRec* outrec);

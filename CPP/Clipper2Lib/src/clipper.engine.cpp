@@ -2134,7 +2134,7 @@ namespace Clipper2Lib {
               int64_t tolerance = iter.first - y;
               if (0 < tolerance && tolerance < tolerance_) //unidirection
               {
-                  HorzSegment& horzsegm = iter.second.second;
+                  HorzSegment& horzsegm = iter.second;
                   horzsegm.left_op->pt.y -= tolerance; //hold same pointer as OutPt* 
                   horzsegm.left_op->next->pt.y -= tolerance;
                   horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm); //head insert
@@ -2146,8 +2146,8 @@ namespace Clipper2Lib {
           }
         ConvertHorzSegsToJoins();
         horz_seg_list_.clear();
-        if (horizon_record_.find(y) != horizon_record_.end() && horizon_record_[y].second.left_op) // !=null
-            horizon_record_[y].second.left_op->horz = nullptr;// clear
+        if (horizon_record_.find(y) != horizon_record_.end() && horizon_record_[y].left_op) // !=null
+            horizon_record_[y].left_op->horz = nullptr;// clear
       }
       //scanline_near_ = 0;
       bot_y_ = y;  // bot_y_ == bottom of scanbeam
@@ -2591,7 +2591,7 @@ namespace Clipper2Lib {
 #endif
       AddTrialHorzJoin(op);
       if (horizon_record_.find(y) != horizon_record_.end())
-          horizon_record_[y].second = HorzSegment(op); // horz_seg_list_.back();//
+          horizon_record_[y] = HorzSegment(op); // horz_seg_list_.back();//
     }
 
     while (true) // loop through consec. horizontal edges
@@ -2747,7 +2747,7 @@ namespace Clipper2Lib {
           {
             PushHorz(*e);  // horizontals are processed later
             if (!outrec_list_.empty() && outrec_list_.back()->pts) // !=null
-                horizon_record_.emplace(y, std::pair<OutPt*, HorzSegment>{ outrec_list_.back()->pts, {} }); //record
+                horizon_record_.emplace(y, HorzSegment()); //record
           }
         }
       }
