@@ -91,6 +91,22 @@ inline std::vector<std::vector<Eigen::Vector2d>> convertCPaths(const CPathsD pat
     return result;
 }
 
+Paths64 operator*(const double scale, const PathsD& paths)
+{
+    Paths64 result;
+    for (const auto& path : paths)
+    {
+        Path64 temp;
+        for (const auto& iter : path)
+        {
+            PointD pt = iter * scale;
+            temp.push_back(Point64(pt.x, pt.y));
+        }
+        result.push_back(temp);
+    }
+    return result;
+}
+
 static PathsD ConvertCPaths(double* paths)
 {
     PathsD result;
@@ -362,9 +378,8 @@ static void test4()
     //    Vector2d(5,5 - eps),
     //} };
     CPathsD c_solu = nullptr;
-
     BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //distingush
-    PathsD solution1 = ConvertCPaths(c_solu);
+    PathsD solution = ConvertCPaths(c_solu);
     return;
 }
 
@@ -464,6 +479,92 @@ static void test7()
     return;
 }
 
+//缺口三角形
+static void test8()
+{
+    PathsEigen poly0;
+    PathsEigen poly1;
+    PathsEigen poly2;
+    double k = 1e-8;
+    int64_t y = 1e11;
+
+    poly0 = { {
+        k * Vector2d(0,0),
+        k * Vector2d(13270919859,-69362172378+y),
+        k * Vector2d(3680285322, -19242782915+y),//peak
+        //k * Vector2d(3680283376, -19242772753+y),//peak
+        k * Vector2d(13274767281,-69356501865+y),
+        k * Vector2d(1e11,y),
+        k * Vector2d(0,y),
+    } };
+    poly1 = { {
+        k * Vector2d(13270919858,-69362172378+y),
+        k * Vector2d(3680283377, -19242772756+y), //peak
+        k * Vector2d(13274767280,-69356501864+y),
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    PathsD solution = ConvertCPaths(c_solu);
+    return;
+}
+
+//布尔大误差
+static void test9()
+{
+    double k = 1e-8;
+    PointD ln1a = PointD(-742.98265717825677, -7243.9818210315834);
+    PointD ln1b = PointD(-647.07629236825687, -7745.1758172515838);
+    PointD ln2a = PointD(-742.98265718465132, -7243.9818210284675);
+    PointD ln2b = PointD(-647.03781814465128, -7745.1191121184675);
+    PointD ip;
+    //GetSegmentIntersectPt(ln1a, ln1b, ln2a, ln2b, ip);
+
+    PathsEigen poly0;
+    PathsEigen poly1;
+    PathsEigen poly2;
+    poly0 = { {
+        k * Vector2d(33706423263, -39243345602),
+        k * Vector2d(36721325486, -34799837850),
+        k * Vector2d(36308198167, -32641998951),
+        k * Vector2d(35362682849, -27698266489),
+        k * Vector2d(27066658209, -21200306227),
+        k * Vector2d(  -10819377 , 30836082),
+        k * Vector2d(0 , 0),
+        k * Vector2d( 3680283377, -19242772756), //peak
+        k * Vector2d(13274767281, -69356501865), // under2
+    } };
+    poly1 = { {
+        k * Vector2d(13270919859 , -69362172378), //under1
+        k * Vector2d(3680283378 ,-19242772756), //peak
+        k * Vector2d(-12744783073, 5786039672),
+        k * Vector2d(-15564438717, 5456264564),
+        k * Vector2d(11708028477 , -71665636789),
+    } };
+    //{x=36 8028 33759999999 y=-192 427 72753000000 } //peak
+    //{x=36 8028 53220000003 y=-192 427 82915000001 }
+
+    poly0 = { {
+        Vector2d(0,0),
+        Vector2d(10,10),
+        Vector2d(5,30),//peak
+        Vector2d(0,35),
+    } };
+    poly1 = { {
+        Vector2d(10.1,10.1),
+        //Vector2d(5 - eps,30 + eps),//peak
+        Vector2d(5 - 2*eps,30 + eps),//peak-left
+        //Vector2d(5 - eps,30 + 2*eps),//peak
+        Vector2d(20,45),
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    Paths64 solution = 1e8 * ConvertCPaths(c_solu);
+    PathsD solution2 = ConvertCPaths(c_solu);
+    return;
+}
+
 static int _enrol = []()
 {
     //test0();
@@ -471,9 +572,11 @@ static int _enrol = []()
     //test2();
     //test3();
     //test5();
-    test4();
+    //test4();
     //test6();
     //test7();
+    //test8();
+    test9();
     return 0;
 }();
 

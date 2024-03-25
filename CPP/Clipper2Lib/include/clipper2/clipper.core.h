@@ -232,8 +232,8 @@ namespace Clipper2Lib
 
   using Path64 = Path<int64_t>;
   using PathD = Path<double>;
-  using Paths64 = std::vector< Path64>;
-  using PathsD = std::vector< PathD>;
+  using Paths64 = std::vector<Path64>;
+  using PathsD = std::vector<PathD>;
 
   static const Point64 InvalidPoint64 = Point64(
     (std::numeric_limits<int64_t>::max)(),
@@ -797,17 +797,30 @@ namespace Clipper2Lib
     double dy1 = static_cast<double>(ln1b.y - ln1a.y);
     double dx2 = static_cast<double>(ln2b.x - ln2a.x);
     double dy2 = static_cast<double>(ln2b.y - ln2a.y);
-
+    double tolerance = 100; //10*10
+    if (DistanceSqr(ln1a, ln2a) < tolerance || DistanceSqr(ln1a, ln2b) < tolerance)
+    {
+        ip = ln1a;
+        return true;
+    }
+    if (DistanceSqr(ln1b, ln2a) < tolerance || DistanceSqr(ln1b, ln2b) < tolerance)
+    {
+        ip = ln1b;
+        return true;
+    }
     double det = dy1 * dx2 - dy2 * dx1;
-    if (det == 0.0) return false;
+    if (det == 0.0) 
+        return false;
     double t = ((ln1a.x - ln2a.x) * dy2 - (ln1a.y - ln2a.y) * dx2) / det;
-    if (t <= 0.0) ip = ln1a;
-    else if (t >= 1.0) ip = ln1b;
+    if (t <= 0.0) 
+        ip = ln1a;
+    else if (t >= 1.0) 
+        ip = ln1b;
     else
     {
-      ip.x = static_cast<T>(ln1a.x + t * dx1);
+      ip.x = static_cast<T>(ln1a.x + t * dx1); //without round
       ip.y = static_cast<T>(ln1a.y + t * dy1);
-  }
+    }
     return true;
   }
 #endif
