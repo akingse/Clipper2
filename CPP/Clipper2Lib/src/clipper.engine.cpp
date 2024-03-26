@@ -2134,12 +2134,15 @@ namespace Clipper2Lib {
           DoHorizontal(*e);
       if (horz_seg_list_.size() > 0)
       {
+#ifdef USING_HORIZON_PROCESS
           for (auto& iter : horizon_record_)
           {
               int64_t tolerance = iter.first - y;
               if (0 < tolerance && tolerance < g_tolerance) //unidirection
               {
                   HorzSegment& horzsegm = iter.second;
+                  if (nullptr == horzsegm.left_op)
+                      continue;
                   horzsegm.left_op->pt.y -= tolerance; //hold same pointer as OutPt* 
                   horzsegm.left_op->next->pt.y -= tolerance;
                   horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm); //head insert
@@ -2149,10 +2152,13 @@ namespace Clipper2Lib {
                   break;
               }
           }
+#endif
         ConvertHorzSegsToJoins();
         horz_seg_list_.clear();
+#ifdef USING_HORIZON_PROCESS
         if (horizon_record_.find(y) != horizon_record_.end() && horizon_record_[y].left_op) // !=null
             horizon_record_[y].left_op->horz = nullptr;// clear
+#endif
       }
       //scanline_near_ = 0;
       bot_y_ = y;  // bot_y_ == bottom of scanbeam
@@ -2476,13 +2482,13 @@ namespace Clipper2Lib {
     //to ensure that intersecting edges are always adjacent ...
 
     IntersectNodeList::iterator node_iter, node_iter2;
-    for (node_iter = intersect_nodes_.begin();
-      node_iter != intersect_nodes_.end();  ++node_iter)
+    for (node_iter = intersect_nodes_.begin(); node_iter != intersect_nodes_.end(); ++node_iter)
     {
       if (!EdgesAdjacentInAEL(*node_iter))
       {
         node_iter2 = node_iter + 1;
-        while (!EdgesAdjacentInAEL(*node_iter2)) ++node_iter2;
+        while (!EdgesAdjacentInAEL(*node_iter2)) 
+            ++node_iter2;
         std::swap(*node_iter, *node_iter2);
       }
 
@@ -2594,8 +2600,10 @@ namespace Clipper2Lib {
       OutPt* op = AddOutPt(horz, Point64(horz.curr_x, y));
 #endif
       AddTrialHorzJoin(op);
+#ifdef USING_HORIZON_PROCESS
       if (horizon_record_.find(y) != horizon_record_.end())
           horizon_record_[y] = HorzSegment(op); // horz_seg_list_.back();//
+#endif
     }
 
     while (true) // loop through consec. horizontal edges
@@ -2750,8 +2758,10 @@ namespace Clipper2Lib {
           if (IsHorizontal(*e))
           {
             PushHorz(*e);  // horizontals are processed later
+#ifdef USING_HORIZON_PROCESS
             if (!outrec_list_.empty() && outrec_list_.back()->pts) // !=null
                 horizon_record_.emplace(y, HorzSegment()); //record
+#endif
           }
         }
       }

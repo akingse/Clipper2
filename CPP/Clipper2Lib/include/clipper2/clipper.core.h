@@ -69,6 +69,7 @@ namespace Clipper2Lib
   static const int64_t INVALID = INT64_MAX;
   const double max_coord = static_cast<double>(MAX_COORD);
   const double min_coord = static_cast<double>(MIN_COORD);
+#define USING_HORIZON_PROCESS
     const int64_t g_tolerance = 10;
     const int64_t g_tolerance2 = g_tolerance * g_tolerance;
 
