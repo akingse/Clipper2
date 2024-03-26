@@ -2146,9 +2146,6 @@ namespace Clipper2Lib {
                   horzsegm.left_op->pt.y -= tolerance; //hold same pointer as OutPt* 
                   horzsegm.left_op->next->pt.y -= tolerance;
                   horz_seg_list_.insert(horz_seg_list_.begin(), horzsegm); //head insert
-                  //OutPt* rec = iter.second.first;
-                  //rec->pt.y -= tolerance;
-                  //rec->next->pt.y -= tolerance;
                   break;
               }
           }
@@ -2437,15 +2434,11 @@ namespace Clipper2Lib {
               tmp = tmp->prev_in_sel;
             }
             // make near segments colliner
-            if (left->curr_x - right->curr_x < g_tolerance)
+            if (left->curr_x - right->curr_x < g_tolerance &&
+                DistanceSqr(left->bot, right->bot) < g_tolerance2 && DistanceSqr(left->top, right->top) < g_tolerance2)
             {
-                if (DistanceSqr(left->bot, right->bot) < g_tolerance2 && DistanceSqr(left->top, right->top) < g_tolerance2)
-                {
-                    left->bot = right->bot; //revise coordinate
-                    left->top = right->top;
-                    left = left->next_in_sel; //else procedure
-                    continue;
-                }
+                left->bot = right->bot; //revise coordinate to collinear
+                left->top = right->top;
             }
             tmp = right;
             right = ExtractFromSEL(tmp);
@@ -2459,7 +2452,8 @@ namespace Clipper2Lib {
               else prev_base->jump = curr_base;
             }
           }
-          else left = left->next_in_sel;
+          else 
+              left = left->next_in_sel;
         }
         prev_base = curr_base;
         left = r_end;
