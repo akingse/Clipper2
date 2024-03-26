@@ -69,6 +69,8 @@ namespace Clipper2Lib
   static const int64_t INVALID = INT64_MAX;
   const double max_coord = static_cast<double>(MAX_COORD);
   const double min_coord = static_cast<double>(MIN_COORD);
+    const int64_t g_tolerance = 10;
+    const int64_t g_tolerance2 = g_tolerance * g_tolerance;
 
   static const double MAX_DBL = (std::numeric_limits<double>::max)();
 
@@ -797,16 +799,15 @@ namespace Clipper2Lib
     double dy1 = static_cast<double>(ln1b.y - ln1a.y);
     double dx2 = static_cast<double>(ln2b.x - ln2a.x);
     double dy2 = static_cast<double>(ln2b.y - ln2a.y);
-    double tolerance = 100; //10*10
-    if (DistanceSqr(ln1a, ln2a) < tolerance || DistanceSqr(ln1a, ln2b) < tolerance)
+    if (DistanceSqr(ln1a, ln2a) < g_tolerance2 || DistanceSqr(ln1a, ln2b) < g_tolerance2)
     {
         ip = ln1a;
-        return true;
+        return true; //return enum::segment_start
     }
-    if (DistanceSqr(ln1b, ln2a) < tolerance || DistanceSqr(ln1b, ln2b) < tolerance)
+    if (DistanceSqr(ln1b, ln2a) < g_tolerance2 || DistanceSqr(ln1b, ln2b) < g_tolerance2)
     {
         ip = ln1b;
-        return true;
+        return true; //return enum::segment_end
     }
     double det = dy1 * dx2 - dy2 * dx1;
     if (det == 0.0) 

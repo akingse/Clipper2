@@ -140,23 +140,28 @@ namespace Clipper2Lib {
 //#ifdef nearbyint
 //#undef nearbyint
 //#endif
-    int64_t tolerance = 100;
     if (ae.top.x == ae.bot.x)
         return ae.top.x;
-    else if (0 <= ae.top.y - currentY && ae.top.y - currentY < tolerance) // ae upper
+    int64_t tolerance = ae.top.y - currentY;
+    //only change Active, not change OutRec* value
+    if (0 == tolerance)
+        return ae.top.x;
+    else if (0 < tolerance && tolerance < g_tolerance) // ae upper
     {
-        ae.top.y -= ae.top.y - currentY; //not change OutRec* value
+        ae.top.y -= tolerance; 
         SetDx(ae); //update k
         return ae.top.x;
     }
-    else if (0 <= ae.bot.y - currentY && ae.bot.y - currentY < tolerance) // ae upper
+    tolerance = ae.bot.y - currentY;
+    if (0 == tolerance)
+        return ae.bot.x;
+    else if (0 < tolerance && tolerance < g_tolerance) // ae upper
     {
-        ae.bot.y -= ae.bot.y - currentY;
+        ae.bot.y -= tolerance;
         SetDx(ae); //update k
         return ae.bot.x;
     }
-    else
-        return ae.bot.x + static_cast<int64_t>(std::nearbyint(ae.dx * (currentY - ae.bot.y))); // abandon macro
+    return ae.bot.x + static_cast<int64_t>(std::nearbyint(ae.dx * (currentY - ae.bot.y))); // abandon macro
     // nb: std::nearbyint (or std::round) substantially *improves* performance here
     // as it greatly improves the likelihood of edge adjacency in ProcessIntersectList().
   }
@@ -2132,7 +2137,7 @@ namespace Clipper2Lib {
           for (auto& iter : horizon_record_)
           {
               int64_t tolerance = iter.first - y;
-              if (0 < tolerance && tolerance < tolerance_) //unidirection
+              if (0 < tolerance && tolerance < g_tolerance) //unidirection
               {
                   HorzSegment& horzsegm = iter.second;
                   horzsegm.left_op->pt.y -= tolerance; //hold same pointer as OutPt* 
@@ -2426,10 +2431,9 @@ namespace Clipper2Lib {
               tmp = tmp->prev_in_sel;
             }
             // make near segments colliner
-            if (left->curr_x - right->curr_x < tolerance_)
+            if (left->curr_x - right->curr_x < g_tolerance)
             {
-                double tolerance = tolerance_ * tolerance_;
-                if (DistanceSqr(left->bot, right->bot) < tolerance && DistanceSqr(left->top, right->top) < tolerance)
+                if (DistanceSqr(left->bot, right->bot) < g_tolerance2 && DistanceSqr(left->top, right->top) < g_tolerance2)
                 {
                     left->bot = right->bot; //revise coordinate
                     left->top = right->top;
@@ -2846,24 +2850,23 @@ namespace Clipper2Lib {
 
     if (check_curr_x)
     {
-      if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > tolerance_ * tolerance_) // 0.25==0.5^2
+      if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > g_tolerance2) // 0.25==0.5^2
           return;
     }
     //else if (e.curr_x != prev->curr_x) return;
-    else if (tolerance_ < abs(e.curr_x - prev->curr_x))
+    else if (g_tolerance < abs(e.curr_x - prev->curr_x))
         return;
     //if (CrossProduct(e.top, pt, prev->top)) return;
     double area = CrossProduct(e.top, pt, prev->top);
-    if (area)
+    if (0.0 != area)
     {
         double n0 = DistanceSqr(e.top, pt);
         double n1 = DistanceSqr(e.top, prev->top);
         double n2 = DistanceSqr(pt, prev->top);
-        double tolerance = tolerance_ * tolerance_;
-        if (tolerance < n0 && tolerance < n1 && tolerance < n2)
+        if (g_tolerance2 < n0 && g_tolerance2 < n1 && g_tolerance2 < n2)
         {
             double length = std::max(std::max(n0, n1), n2);
-            if (tolerance * length < area * area)
+            if (g_tolerance2 * length < area * area)
                 return;
         }
     }
@@ -2891,24 +2894,23 @@ namespace Clipper2Lib {
 
     if (check_curr_x)
     {
-      if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > tolerance_ * tolerance_) // 0.35
+      if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > g_tolerance2) // 0.35
           return;
     }
     //else if (e.curr_x != next->curr_x) return;
-    else if (tolerance_ < abs(e.curr_x - next->curr_x))
+    else if (g_tolerance < abs(e.curr_x - next->curr_x))
         return;
     //if (CrossProduct(e.top, pt, next->top)) return;
     double area = CrossProduct(e.top, pt, next->top);
-    if (area)
+    if (0.0 != area)
     {
         double n0 = DistanceSqr(e.top, pt);
         double n1 = DistanceSqr(e.top, next->top);
         double n2 = DistanceSqr(pt, next->top);
-        double tolerance = tolerance_ * tolerance_;
-        if (tolerance < n0 && tolerance < n1 && tolerance < n2)
+        if (g_tolerance2 < n0 && g_tolerance2 < n1 && g_tolerance2 < n2)
         {
             double length = std::max(std::max(n0, n1), n2);
-            if (tolerance * length < area * area)
+            if (g_tolerance2 * length < area * area)
                 return;
         }
     }
