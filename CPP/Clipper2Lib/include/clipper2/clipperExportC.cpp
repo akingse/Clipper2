@@ -387,14 +387,14 @@ static bool CreatePolyPath64FromCPolyPath(CPolyPath64& v, PolyPath64& owner)
         return false;
     Path64 path;
     path.reserve(poly_len);
-    for (size_t i = 0; i < poly_len; ++i)
+    for (int64_t i = 0; i < poly_len; ++i)
     {
         int64_t x = *v++, y = *v++;
         path.push_back(Point64(x, y));
     }
 
     PolyPath64* new_owner = owner.AddChild(path);
-    for (size_t i = 0; i < child_count; ++i)
+    for (int64_t i = 0; i < child_count; ++i)
         CreatePolyPath64FromCPolyPath(v, *new_owner);
     return true;
 }
@@ -404,7 +404,7 @@ static bool BuildPolyTree64FromCPolyTree(CPolyTree64 tree, PolyTree64& result)
     result.Clear();
     int64_t* v = tree;
     int64_t array_len = *v++, child_count = *v++;
-    for (size_t i = 0; i < child_count; ++i)
+    for (int64_t i = 0; i < child_count; ++i)
         if (!CreatePolyPath64FromCPolyPath(v, result)) 
             return false;
     return true;
@@ -421,7 +421,7 @@ double Clipper::getAreaOfPolyTree64(const CPaths64 subjects)
 
 static bool CreatePolyPathDFromCPolyPath(CPolyPathD& v, PolyPathD& owner)
 {
-    int64_t poly_len = *v++, child_count = *v++;
+    int64_t poly_len = (int64_t)*v++, child_count = (int64_t)*v++;
     if (!poly_len)
         return false;
     PathD path;
@@ -441,7 +441,7 @@ static bool BuildPolyTreeDFromCPolyTree(CPolyTreeD tree, PolyTreeD& result)
 {
     result.Clear();
     double* v = tree;
-    int64_t array_len = *v++, child_count = *v++;
+    int64_t array_len = (int64_t)*v++, child_count = (int64_t)*v++;
     for (int64_t i = 0; i < child_count; ++i)
         if (!CreatePolyPathDFromCPolyPath(v, result)) 
             return false;
