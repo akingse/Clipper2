@@ -2439,6 +2439,8 @@ namespace Clipper2Lib {
             {
                 left->bot = right->bot; //revise coordinate to collinear
                 left->top = right->top;
+                left->curr_x = right->curr_x;
+                left->dx = right->dx;
             }
             tmp = right;
             right = ExtractFromSEL(tmp);
@@ -2851,9 +2853,11 @@ namespace Clipper2Lib {
         return;
     if ((pt.y < e.top.y + 2 || pt.y < prev->top.y + 2) && ((e.bot.y > pt.y) || (prev->bot.y > pt.y))) 
         return; // avoid trivial joins
-
     if (check_curr_x)
     {
+#ifdef _DEBUG
+        double distance = PerpendicDistFromLineSqrd(pt, prev->bot, prev->top);
+#endif // _DEBUG
       if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > g_tolerance2) // 0.25==0.5^2
           return;
     }
@@ -2898,6 +2902,9 @@ namespace Clipper2Lib {
 
     if (check_curr_x)
     {
+#ifdef _DEBUG
+        double distance = PerpendicDistFromLineSqrd(pt, next->bot, next->top);
+#endif // _DEBUG
       if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > g_tolerance2) // 0.35
           return;
     }

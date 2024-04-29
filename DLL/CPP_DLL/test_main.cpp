@@ -602,6 +602,31 @@ static void test10()
     return;
 }
 
+static void test11()
+{
+    //边接近导致的回头线
+    PathsEigen poly0;
+    PathsEigen poly1;
+    poly0 = { { //c_subj0 下方
+        Vector2d(-1926.6945369507971, 1883.2844434640324),//右上
+        Vector2d(-2206.4174202107970, 1953.2571552840325),//左上
+        Vector2d(-2213.8008594307971, 1946.9897900040326),
+        Vector2d(-1919.1719573007972, 1868.7277368040325),
+    } };
+
+    poly1 = { { //c_clipI 上方
+        Vector2d(-2200.9861930821453, 1957.8674030800000),
+        Vector2d(-2206.4174202221457, 1953.2571553000000), //左下
+        Vector2d(-1926.6945369621455, 1883.2844434700000), //右下
+        Vector2d(-1929.5926849521456, 1888.8925582499999),
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    PathsD solution = ConvertCPaths(c_solu);
+    return;
+}
+
 static int _enrol = []()
 {
     //test0();
@@ -614,7 +639,7 @@ static int _enrol = []()
     //test7();
     //test8();
     //test9();
-    test10();
+    test11();
     return 0;
 }();
 
