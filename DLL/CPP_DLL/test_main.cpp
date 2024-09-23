@@ -5,6 +5,8 @@ int main()
 	return 0;
 }
 
+#if defined (_DEBUG) && defined (USING_EIGEN)
+
 #include "clipper2/clipperExportC.h"
 namespace Clipper
 {
@@ -627,6 +629,25 @@ static void test11()
     return;
 }
 
+static void test12()
+{
+    vector<vector<Eigen::Vector2d>> poly0 = { {
+        Vector2d(0,0),
+        Vector2d(10,0),
+        Vector2d(10,10),
+        Vector2d(0,10),
+    } };
+    vector<vector<Eigen::Vector2d>> poly1 = { {
+        Vector2d(5,-10),
+        Vector2d(5,20),
+        } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Intersection, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //mdp=8/7
+    vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+    return;
+}
+
 static int _enrol = []()
 {
     //test0();
@@ -639,7 +660,8 @@ static int _enrol = []()
     //test7();
     //test8();
     //test9();
-    test11();
+    test12();
     return 0;
 }();
 
+#endif

@@ -10,12 +10,6 @@
     <ClCompile Include="..\..\CPP\Clipper2Lib\src\clipper.rectclip.cpp">
       <Filter>clipper</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>clipper</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>clipper</Filter>
-    </ClCompile>
     <ClCompile Include="test_main.cpp">
       <Filter>test</Filter>
     </ClCompile>
@@ -23,13 +17,16 @@
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.cpp">
-      <Filter>test</Filter>
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>clipper</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.core.h">
       <Filter>clipper</Filter>
     </ClInclude>
@@ -48,11 +45,14 @@
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.rectclip.h">
       <Filter>clipper</Filter>
     </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>clipper</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipperExportC.h">
-      <Filter>test</Filter>
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +61,9 @@
     </Filter>
     <Filter Include="test">
       <UniqueIdentifier>{1a395c97-1801-4537-989b-1e981577485d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{023f374b-ed2d-4218-a992-fae880a813ff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,4 +1,7 @@
 #include "pch.h"
+
+#if defined (_DEBUG) && defined (USING_EIGEN)
+
 //#include "clipper2/clipper.h"
 using namespace std;
 using namespace Eigen;
@@ -568,3 +571,4 @@ static int _enrol = []()
     return 0;
 }();
 
+#endif

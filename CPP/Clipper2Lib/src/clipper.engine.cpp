@@ -2124,10 +2124,32 @@ namespace Clipper2Lib {
     using_polytree_ = use_polytrees;
     Reset();
     int64_t y;
+    std::map<int64_t, size_t> repeatRecord;
     if (ct == ClipType::None || !PopScanline(y)) 
         return true;
+    //avoid closed loop circuit
+    size_t circleCount = 0, maxTime = 1000;
     while (succeeded_)
     {
+#ifdef USING_HORIZON_PROCESS
+        circleCount++;
+        if (maxTime < circleCount)
+        {
+            if (repeatRecord.find(y) == repeatRecord.end())
+                repeatRecord.emplace(y, 1);
+            else
+                repeatRecord[y]++;
+            bool isOver = false;
+            for (const auto& iter : repeatRecord)
+            {
+                if (maxTime < iter.second)
+                    isOver = true;
+                break;
+            }
+            if (isOver)
+                break;
+        }
+#endif //USING_HORIZON_PROCESS
       InsertLocalMinimaIntoAEL(y);
       Active* e;
       while (PopHorz(e)) 

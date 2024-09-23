@@ -13,6 +13,7 @@
 #endif //PCH_H
 
 #define CLIPPER_DLLEXPORT_DEFINE
+#define USING_EIGEN
 #include "clipper2/clipper.h" //without clipper.export
 #include <random>
 #include <cstdlib>
