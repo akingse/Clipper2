@@ -2130,26 +2130,21 @@ namespace Clipper2Lib {
     //avoid closed loop circuit
     size_t circleCount = 0, maxTime = 1000;
     std::map<int64_t, size_t> repeatRecord;
-    bool isOver = false;
 #endif
     while (succeeded_)
     {
 #ifdef USING_HORIZON_PROCESS
         circleCount++;
-        if (maxTime < circleCount)
+        if (maxTime < circleCount) //trigger check
         {
             if (repeatRecord.find(y) == repeatRecord.end())
                 repeatRecord.emplace(y, 1);
             else
-                repeatRecord[y]++;
-            for (const auto& iter : repeatRecord)
             {
-                if (maxTime < iter.second)
-                    isOver = true;
-                break;
+                repeatRecord[y]++;
+                if (maxTime < repeatRecord[y])
+                    break;
             }
-            if (isOver)
-                break;
         }
 #endif //USING_HORIZON_PROCESS
       InsertLocalMinimaIntoAEL(y);
