@@ -2124,11 +2124,14 @@ namespace Clipper2Lib {
     using_polytree_ = use_polytrees;
     Reset();
     int64_t y;
-    std::map<int64_t, size_t> repeatRecord;
     if (ct == ClipType::None || !PopScanline(y)) 
         return true;
+#ifdef USING_HORIZON_PROCESS
     //avoid closed loop circuit
     size_t circleCount = 0, maxTime = 1000;
+    std::map<int64_t, size_t> repeatRecord;
+    bool isOver = false;
+#endif
     while (succeeded_)
     {
 #ifdef USING_HORIZON_PROCESS
@@ -2139,7 +2142,6 @@ namespace Clipper2Lib {
                 repeatRecord.emplace(y, 1);
             else
                 repeatRecord[y]++;
-            bool isOver = false;
             for (const auto& iter : repeatRecord)
             {
                 if (maxTime < iter.second)
