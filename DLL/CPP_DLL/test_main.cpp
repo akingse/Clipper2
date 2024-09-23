@@ -567,6 +567,7 @@ static void test9()
     return;
 }
 
+//接近重合
 static void test10()
 {
     PathsEigen poly0;
@@ -604,9 +605,9 @@ static void test10()
     return;
 }
 
+//边接近导致的回头线
 static void test11()
 {
-    //边接近导致的回头线
     PathsEigen poly0;
     PathsEigen poly1;
     poly0 = { { //c_subj0 下方
@@ -648,6 +649,26 @@ static void test12()
     return;
 }
 
+//测试简单数据
+static void test13()
+{
+    vector<vector<Eigen::Vector2d>> poly0 = { {
+        Vector2d(0,0),
+        Vector2d(10,2),
+        Vector2d(5,10),
+    } };
+    vector<vector<Eigen::Vector2d>> poly1 = { {
+        Vector2d(0,4),
+        Vector2d(10,6),
+        Vector2d(5,15),
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //mdp=8/7
+    vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+    return;
+}
+
 static int _enrol = []()
 {
     //test0();
@@ -660,7 +681,8 @@ static int _enrol = []()
     //test7();
     //test8();
     //test9();
-    test12();
+    //test12();
+    test13();
     return 0;
 }();
 
