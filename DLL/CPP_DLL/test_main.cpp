@@ -11,6 +11,7 @@ int main()
 namespace Clipper
 {
     typedef std::vector<std::vector<Eigen::Vector2d>> PathsEigen;
+    typedef std::array<Eigen::Vector2d, 3> Triangle2d;
 
     static const uint8_t EvenOdd = 0, Intersection = 1, Union = 2, Difference = 3;
     static const int mdp = 8;
@@ -19,8 +20,8 @@ namespace Clipper
 
 using namespace std;
 using namespace Eigen;
-using namespace Clipper;
-using namespace Clipper2Lib;
+using namespace Clipper; // customize
+using namespace Clipper2Lib; //official name
 
 inline double* createCPaths(const std::array<Eigen::Vector2d, 3>& path, const Eigen::Vector2d& relative = Eigen::Vector2d(0, 0))
 {
@@ -69,6 +70,37 @@ inline double* createCPaths(const vector<vector<Eigen::Vector2d>>& paths, const 
     return result;
 }
 
+inline int64_t* createCPathsInt(const vector<vector<Eigen::Vector2d>>& paths)
+{
+    size_t cnt, array_len;
+    auto _getPathCountAndCPathsArrayLen = [&]()
+        {
+            array_len = 2;
+            cnt = 0;
+            for (const auto& path : paths)
+            {
+                array_len += path.size() * 2 + 2; //path.m_triangle2d.size
+                ++cnt;
+            }
+        };
+    _getPathCountAndCPathsArrayLen();
+    int64_t* result = new int64_t[array_len];
+    int64_t* v = result;
+    *v++ = (int64_t)array_len;
+    *v++ = (int64_t)cnt;
+    for (const auto& path : paths)
+    {
+        *v++ = (int64_t)path.size();
+        *v++ = 0;
+        for (const auto& pt : path)
+        {
+            *v++ = (int64_t)std::pow(10, mdp) * (int64_t)pt[0];
+            *v++ = (int64_t)std::pow(10, mdp) * (int64_t)pt[1];
+        }
+    }
+    return result;
+}
+
 inline std::vector<std::vector<Eigen::Vector2d>> convertCPaths(const CPathsD paths, const Eigen::Vector2d& relative = Eigen::Vector2d(0, 0))
 {
     std::vector<std::vector<Eigen::Vector2d>> result;
@@ -93,23 +125,21 @@ inline std::vector<std::vector<Eigen::Vector2d>> convertCPaths(const CPathsD pat
     return result;
 }
 
-Paths64 operator*(const double scale, const PathsD& paths)
+//visualization 
+inline std::vector<std::vector<PointD>> convertCPaths(const std::vector<std::vector<Eigen::Vector2d>>& paths)
 {
-    Paths64 result;
-    for (const auto& path : paths)
+    std::vector<std::vector<PointD>> res(paths.size());
+    for (int i = 0; i < paths.size(); ++i) 
     {
-        Path64 temp;
-        for (const auto& iter : path)
-        {
-            PointD pt = iter * scale;
-            temp.push_back(Point64(pt.x, pt.y));
-        }
-        result.push_back(temp);
+        res[i].resize(paths[i].size());
+        for (int j = 0; j < paths[i].size(); ++j)
+            res[i][j] = PointD(paths[i][j][0], paths[i][j][1]);
     }
-    return result;
+    return res;
 }
 
-static PathsD ConvertCPaths(double* paths)
+//CPathsD -> PathsD
+inline std::vector<std::vector<PointD>>  ConvertCPaths(CPathsD paths)
 {
     PathsD result;
     if (!paths)
@@ -133,8 +163,24 @@ static PathsD ConvertCPaths(double* paths)
     return result;
 }
 
-typedef std::array<Eigen::Vector2d, 3> Triangle2d;
+//scale points
+Paths64 operator*(const double scale, const PathsD& paths)
+{
+    Paths64 result;
+    for (const auto& path : paths)
+    {
+        Path64 temp;
+        for (const auto& iter : path)
+        {
+            PointD pt = iter * scale;
+            temp.push_back(Point64(pt.x, pt.y));
+        }
+        result.push_back(temp);
+    }
+    return result;
+}
 
+#pragma region test_clipper
 //四舍五入
 static void test0()
 {
@@ -166,6 +212,7 @@ static void test0()
     return;
 }
 
+//函数测试
 static void test1()
 {
     Point64 offPt(0, 10);
@@ -629,7 +676,9 @@ static void test11()
     PathsD solution = ConvertCPaths(c_solu);
     return;
 }
+#pragma endregion
 
+//测试自交判断，面积过滤
 static void test12()
 {
     vector<vector<Eigen::Vector2d>> poly0 = { {
@@ -644,12 +693,52 @@ static void test12()
         } };
 
     CPathsD c_solu = nullptr;
-    BooleanOpD(Clipper::Intersection, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //mdp=8/7
+    //BooleanOpD(Clipper::Intersection, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    //vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+
+
+    vector<vector<Eigen::Vector2d>> poly2 = { {
+        Vector2d(0,0),
+        Vector2d(1,0),
+        Vector2d(1,200*eps),
+        Vector2d(0,1),
+        Vector2d(-0.5,0.5),
+        } };
+
+    vector<vector<Eigen::Vector2d>> poly3 = { { //自交，会被clipper拆分
+        Vector2d(0,0),
+        Vector2d(1,0),
+        Vector2d(0,1),
+        Vector2d(1,1),
+        } };
+    //过滤
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly3), nullptr, c_solu, mdp);
     vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+    vector<std::vector<PointD>> solution1 = convertCPaths(solution0);
+    //自交
+    std::vector<Eigen::Vector2d> contour = {
+    //{ 0, 0 }, { 2, 0 }, { 1, 1 }, { 0, 2 }, { 2, 2 } // 自交
+    { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 },  // 不自交
+    };
+    //bool is0 = hasSelfIntersections(contour, mdp);
+
+    //SegmentsIntersect
+    bool is1 = SegmentsIntersect(
+        Point64(0, 0), Point64(10, 0),
+        Point64(1, -1), Point64(0, 10), true);
+    
+    bool is2 = SegmentsIntersect(
+        Point64(0, 0), Point64(10, 0),
+        Point64(0, 0), Point64(0, 10), true);
+    
+    bool is3 = SegmentsIntersect(
+        Point64(0, 0), Point64(10, 0),
+        Point64(0, 0), Point64(0, 10), false);
+
     return;
 }
 
-//测试简单数据
+//测试简单数据-scanline扫描流程
 static void test13()
 {
     vector<vector<Eigen::Vector2d>> poly0 = { {
@@ -666,10 +755,15 @@ static void test13()
     CPathsD c_solu = nullptr;
     BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
     vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+
+    int64_t* c_solu1 = nullptr;
+    BooleanOp64(Clipper::Union, EvenOdd, createCPathsInt(poly0), createCPathsInt(poly1), c_solu1);
+    vector<vector<Eigen::Vector2d>> solution1 = convertCPaths(c_solu);
+
     return;
 }
 
-//平行线死循环
+//平行线死循环-对照
 static void test14()
 {
     //subj
@@ -702,6 +796,7 @@ static void test14()
     return;
 }
 
+
 static int _enrol = []()
 {
     //test0();
@@ -715,8 +810,8 @@ static int _enrol = []()
     //test8();
     //test9();
     //test12();
-    //test13();
-    test14();
+    test13();
+    //test14();
     return 0;
 }();
 
