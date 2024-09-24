@@ -20,3 +20,6 @@
 #include <ctime>
 #include <fstream>
 #include <Eigen/Dense> 
+
+//config release: generate Release\Clipper2_64.lib
+// without copy, Example sln set library directory

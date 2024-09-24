@@ -67,18 +67,17 @@ static CPathsD CreateCPathsDFromPaths64(const Paths64& _paths, double scale)
 #endif
 #ifdef USING_TOLERANCE_PROCESS
     //process tiny area and self interset
-    std::vector<Path64> paths;
-    for (int k = 0; k < _paths.size(); ++k)
+    std::vector<Path64> paths; //Paths64
+    for (int i = 0; i < _paths.size(); ++i)
     {
-        double area = Area(_paths[k]) * scale;
-        if (area < g_tolerance2)
-            continue;
 #ifdef DO_SELFINTERSECT_PROCESS
         //double loop
-        if (3 < _paths[k].size() && _isSelfIntersect(_paths[k]))
+        if (3 < _paths[i].size() && _isSelfIntersect(_paths[i]))
             continue;
 #endif
-        paths.push_back(_paths[k]);
+        double area = Area(_paths[i]) * scale; //canbe negative
+        if (g_tolerance2 < std::fabs(area))
+            paths.push_back(_paths[i]);
     }
 #else
     const Paths64& paths = _paths;
