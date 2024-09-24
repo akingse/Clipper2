@@ -664,7 +664,40 @@ static void test13()
     } };
 
     CPathsD c_solu = nullptr;
-    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8); //mdp=8/7
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+    return;
+}
+
+//平行线死循环
+static void test14()
+{
+    //subj
+    vector<vector<Eigen::Vector2d>> poly0 = { 
+        {//outer
+        Vector2d(30,200),
+        Vector2d(5,190),
+        Vector2d(0,190-0.11),
+        Vector2d(-10,180),
+        Vector2d(30,180),
+        },
+        {//inner
+            //顺序自交
+        Vector2d(25,191.2821),
+        Vector2d(24,191.2818),
+        Vector2d(23,190),
+        Vector2d(22,190),
+        },
+    };
+    //clip
+    vector<vector<Eigen::Vector2d>> poly1 = { {
+        Vector2d(0,190),
+        Vector2d(10,190),
+        Vector2d(20,200),
+    } };
+
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
     vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
     return;
 }
@@ -682,7 +715,8 @@ static int _enrol = []()
     //test8();
     //test9();
     //test12();
-    test13();
+    //test13();
+    test14();
     return 0;
 }();
 

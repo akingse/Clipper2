@@ -274,8 +274,6 @@ namespace Clipper2Lib {
 		bool succeeded_ = true;
 		OutRecList outrec_list_; //pointers in case list memory reallocated
 #ifdef USING_HORIZON_PROCESS
-		//const int64_t tolerance_ = g_tolerance; //using global tolerance
-		//std::map<int64_t, std::pair<OutPt*, HorzSegment>> horizon_record_;
 		std::map<int64_t, HorzSegment> horizon_record_; //to process horizon parallel
 #endif
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);

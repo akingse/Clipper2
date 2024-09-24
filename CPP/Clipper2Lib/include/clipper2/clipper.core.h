@@ -69,9 +69,14 @@ namespace Clipper2Lib
   static const int64_t INVALID = INT64_MAX;
   const double max_coord = static_cast<double>(MAX_COORD);
   const double min_coord = static_cast<double>(MIN_COORD);
+
+#define USING_TOLERANCE_PROCESS
 #define USING_HORIZON_PROCESS
+
+#ifdef USING_TOLERANCE_PROCESS
     const int64_t g_tolerance = 10;
     const int64_t g_tolerance2 = g_tolerance * g_tolerance;
+#endif
 
   static const double MAX_DBL = (std::numeric_limits<double>::max)();
 
@@ -801,6 +806,8 @@ namespace Clipper2Lib
     double dy1 = static_cast<double>(ln1b.y - ln1a.y);
     double dx2 = static_cast<double>(ln2b.x - ln2a.x);
     double dy2 = static_cast<double>(ln2b.y - ln2a.y);
+
+#ifdef USING_TOLERANCE_PROCESS
     if (DistanceSqr(ln1a, ln2a) < g_tolerance2 || DistanceSqr(ln1a, ln2b) < g_tolerance2)
     {
         ip = ln1a;
@@ -811,6 +818,7 @@ namespace Clipper2Lib
         ip = ln1b;
         return true; //return enum::segment_end
     }
+#endif
     double det = dy1 * dx2 - dy2 * dx1;
     if (det == 0.0) 
         return false;

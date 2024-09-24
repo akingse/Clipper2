@@ -137,31 +137,34 @@ namespace Clipper2Lib {
 
   inline int64_t TopX(Active& ae, const int64_t currentY)
   {
-//#ifdef nearbyint
-//#undef nearbyint
-//#endif
-    if (ae.top.x == ae.bot.x)
-        return ae.top.x;
-    int64_t tolerance = ae.top.y - currentY;
-    //only change Active, not change OutRec* value
-    if (0 == tolerance)
-        return ae.top.x;
-    else if (0 < tolerance && tolerance < g_tolerance) // ae upper
-    {
-        ae.top.y -= tolerance; 
-        SetDx(ae); //update k
-        return ae.top.x;
-    }
-    tolerance = ae.bot.y - currentY;
-    if (0 == tolerance)
-        return ae.bot.x;
-    else if (0 < tolerance && tolerance < g_tolerance) // ae upper
-    {
-        ae.bot.y -= tolerance;
-        SetDx(ae); //update k
-        return ae.bot.x;
-    }
-    return ae.bot.x + static_cast<int64_t>(std::nearbyint(ae.dx * (currentY - ae.bot.y))); // abandon macro
+#ifdef USING_TOLERANCE_PROCESS
+      if (ae.top.x == ae.bot.x)
+          return ae.top.x;
+      int64_t tolerance = ae.top.y - currentY;
+      //only change Active, not change OutRec* value
+      if (0 == tolerance)
+          return ae.top.x;
+      else if (0 < tolerance && tolerance < g_tolerance) // ae upper
+      {
+          ae.top.y -= tolerance;
+          SetDx(ae); //update k
+          return ae.top.x;
+      }
+      tolerance = ae.bot.y - currentY;
+      if (0 == tolerance)
+          return ae.bot.x;
+      else if (0 < tolerance && tolerance < g_tolerance) // ae upper
+      {
+          ae.bot.y -= tolerance;
+          SetDx(ae); //update k
+          return ae.bot.x;
+      }
+      return ae.bot.x + static_cast<int64_t>(std::nearbyint(ae.dx * (currentY - ae.bot.y))); // abandon macro
+#else
+    if ((currentY == ae.top.y) || (ae.top.x == ae.bot.x)) return ae.top.x;
+    else if (currentY == ae.bot.y) return ae.bot.x;
+    else return ae.bot.x + static_cast<int64_t>(nearbyint(ae.dx * (currentY - ae.bot.y)));
+#endif
     // nb: std::nearbyint (or std::round) substantially *improves* performance here
     // as it greatly improves the likelihood of edge adjacency in ProcessIntersectList().
   }
@@ -2452,6 +2455,7 @@ namespace Clipper2Lib {
               if (tmp == left) break;
               tmp = tmp->prev_in_sel;
             }
+#ifdef USING_TOLERANCE_PROCESS
             // make near segments colliner
             if (left->curr_x - right->curr_x < g_tolerance &&
                 DistanceSqr(left->bot, right->bot) < g_tolerance2 && DistanceSqr(left->top, right->top) < g_tolerance2)
@@ -2461,6 +2465,7 @@ namespace Clipper2Lib {
                 left->curr_x = right->curr_x;
                 left->dx = right->dx;
             }
+#endif
             tmp = right;
             right = ExtractFromSEL(tmp);
             l_end = right;
@@ -2872,18 +2877,18 @@ namespace Clipper2Lib {
         return;
     if ((pt.y < e.top.y + 2 || pt.y < prev->top.y + 2) && ((e.bot.y > pt.y) || (prev->bot.y > pt.y))) 
         return; // avoid trivial joins
+
+#ifdef USING_TOLERANCE_PROCESS
     if (check_curr_x)
     {
-#ifdef _DEBUG
+#if defined (_DEBUG)
         double distance = PerpendicDistFromLineSqrd(pt, prev->bot, prev->top);
 #endif // _DEBUG
-      if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > g_tolerance2) // 0.25==0.5^2
+        if (g_tolerance2 < PerpendicDistFromLineSqrd(pt, prev->bot, prev->top)) // 0.25==0.5^2
           return;
     }
-    //else if (e.curr_x != prev->curr_x) return;
     else if (g_tolerance < abs(e.curr_x - prev->curr_x))
         return;
-    //if (CrossProduct(e.top, pt, prev->top)) return;
     double area = CrossProduct(e.top, pt, prev->top);
     if (0.0 != area)
     {
@@ -2897,7 +2902,14 @@ namespace Clipper2Lib {
                 return;
         }
     }
-
+#else
+    if (check_curr_x)
+    {
+        if (PerpendicDistFromLineSqrd(pt, prev->bot, prev->top) > 0.25) return;
+    }
+    else if (e.curr_x != prev->curr_x) return;
+    if (CrossProduct(e.top, pt, prev->top)) return;
+#endif
     if (e.outrec->idx == prev->outrec->idx)
       AddLocalMaxPoly(*prev, e, pt);
     else if (e.outrec->idx < prev->outrec->idx)
@@ -2919,6 +2931,7 @@ namespace Clipper2Lib {
     if ((pt.y < e.top.y +2 || pt.y < next->top.y +2) && ((e.bot.y > pt.y) || (next->bot.y > pt.y))) 
         return; // avoid trivial joins
 
+#ifdef USING_TOLERANCE_PROCESS
     if (check_curr_x)
     {
 #ifdef _DEBUG
@@ -2927,10 +2940,8 @@ namespace Clipper2Lib {
       if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > g_tolerance2) // 0.35
           return;
     }
-    //else if (e.curr_x != next->curr_x) return;
     else if (g_tolerance < abs(e.curr_x - next->curr_x))
         return;
-    //if (CrossProduct(e.top, pt, next->top)) return;
     double area = CrossProduct(e.top, pt, next->top);
     if (0.0 != area)
     {
@@ -2944,6 +2955,14 @@ namespace Clipper2Lib {
                 return;
         }
     }
+#else
+    if (check_curr_x)
+    {
+        if (PerpendicDistFromLineSqrd(pt, next->bot, next->top) > 0.35) return;
+    }
+    else if (e.curr_x != next->curr_x) return;
+    if (CrossProduct(e.top, pt, next->top)) return;
+#endif
     if (e.outrec->idx == next->outrec->idx)
       AddLocalMaxPoly(e, *next, pt);
     else if (e.outrec->idx < next->outrec->idx)
