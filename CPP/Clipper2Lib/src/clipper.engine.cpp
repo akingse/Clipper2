@@ -2131,7 +2131,7 @@ namespace Clipper2Lib {
         return true;
 #ifdef USING_HORIZON_PROCESS
     //avoid closed loop circuit
-    size_t circleCount = 0, maxTime = 1000;
+    size_t circleCount = 0, maxTime = 100; //force break loop, cause multi duplication profile
     std::map<int64_t, size_t> repeatRecord;
 #endif
     while (succeeded_)
