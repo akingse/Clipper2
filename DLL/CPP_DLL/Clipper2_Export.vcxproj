@@ -85,6 +85,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>Clipper2_64</TargetName>
     <IncludePath>..\..\CPP\Clipper2Lib\include;C:\Users\Aking\source\repos\TPL\eigen-3.4.0;$(IncludePath)</IncludePath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,6 +163,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /y $(SolutionDir)\$(Platform)\$(Configuration)\Clipper2_64.lib C:\Users\Aking\source\repos\bimbase\Libs\Release</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CPP\Clipper2Lib\include\clipper2\clipper.core.h" />

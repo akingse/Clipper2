@@ -192,6 +192,7 @@ int Clipper::BooleanOpD(uint8_t cliptype, uint8_t fillrule,
     clp = ConvertCPathsDToPaths64(clips, scale);
 
     Clipper64 clipper;
+    clipper.precision() = precision;
     //clipper.preserve_collinear_ = false; //whether reserve collinear points
     //clipper.reverse_solution_ = false;
     if (sub.size() > 0) 
@@ -201,6 +202,7 @@ int Clipper::BooleanOpD(uint8_t cliptype, uint8_t fillrule,
     Paths64 open_paths;
     if (!clipper.Execute(ClipType(cliptype), FillRule(fillrule), sol, open_paths)) //reduce function nest
         return -1;
+    //clipper.writeErrorData();
     //TrimCollinear
     //for (auto& iter: sol)
     //    iter = TrimCollinear(iter, false);

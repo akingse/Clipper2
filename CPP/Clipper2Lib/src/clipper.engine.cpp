@@ -13,6 +13,11 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <fstream>
+#include <direct.h> //_getcwd
+#include <windows.h>
+#undef min
+#undef max
 
 #include "clipper2/clipper.engine.h"
 #include "clipper2/clipper.h"
@@ -3137,7 +3142,8 @@ namespace Clipper2Lib {
     for (size_t i = 0; i < outrec_list_.size(); ++i)
     {
       OutRec* outrec = outrec_list_[i];
-      if (outrec->pts == nullptr) continue;
+      if (outrec->pts == nullptr) 
+          continue;
 
       Path64 path;
       if (solutionOpen && outrec->is_open)
@@ -3287,6 +3293,99 @@ namespace Clipper2Lib {
       if (CheckBounds(outrec))
         RecursiveCheckOwners(outrec, &polytree);
     }
+  }
+
+
+  std::pair<Paths64, Paths64> Clipper2Lib::ClipperBase::convertPointerToPaths() const
+  {
+      std::vector<std::vector<Point64>> paths_sub;
+      std::vector<std::vector<Point64>> paths_clp;
+      for (int i = 0; i < minima_list_.size(); i++)
+      {
+          const std::unique_ptr<LocalMinima>& ptr = minima_list_[i];
+          if (ptr == nullptr)
+              continue;
+          std::vector<Point64> path;
+          const Vertex* head = ptr->vertex;
+          Vertex* iter = ptr->vertex;
+          bool first = true;
+          while (first || head != iter) //do-while
+          {
+              first = false;
+              path.push_back(iter->pt);
+              iter = iter->next;
+          }
+          if (ptr->polytype == PathType::Subject)
+              paths_sub.push_back(path);
+          else if (ptr->polytype == PathType::Clip)
+              paths_clp.push_back(path);
+      }
+      //vertex_lists_ is useless
+      return std::pair<Paths64, Paths64>(paths_sub, paths_clp);
+  }
+
+  std::string convertPathToString(const Paths64& paths)
+  {
+      std::string text = "[\n";
+      for (int i = 0; i < paths.size(); i++)
+      {
+          text += "    [\n";
+          Path64 path = paths[i];
+          for (int j = 0; j < path.size(); j++) //only int64_t
+              text += "    Vec3(" + std::to_string(path[j].x) + ", " + std::to_string(path[j].y) + "),\n";
+          text += "    ],\n";
+      }
+      text += "]\n";
+      return text;
+  }
+
+  void Clipper2Lib::ClipperBase::writeErrorData(const std::string& filename) const
+  {
+      std::string fileName = filename;
+      if (fileName.empty())
+      {
+          constexpr int max_path = 260;
+          char buffer[max_path];
+          fileName = _getcwd(buffer, sizeof(buffer));
+          fileName += "/dataFile/clipperData_" + std::to_string(GetTickCount64()) + ".py";
+      }
+      std::ofstream ofsFile(fileName);
+      if (ofsFile.is_open())
+      {
+          std::string text = "\
+import sys\n\
+import os\n\
+sys.path.append(os.path.join(os.path.dirname(__file__), '..//'))\n\
+from pyp3d import * # NOQA: E402\n\
+";
+          //write time
+          std::time_t now = std::time(nullptr);
+          std::tm localTime;
+          localtime_s(&localTime, &now);
+          char buffer[100];
+          std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
+          std::string time_str = std::string(buffer);
+          text += "# " + time_str + "\n";
+          //write settings
+          std::string type = "None";
+          if (cliptype() == ClipType::Intersection)
+              type = "Intersection";
+          else if (cliptype() == ClipType::Union)
+              type = "Union";
+          else if (cliptype() == ClipType::Difference)
+              type = "Difference";
+          text += "# ClipType: " + type + "\n";
+          text += "precision = " + std::to_string(precision_) + "\n\n";
+          //write data
+          const std::pair<Paths64, Paths64>& pathsTwo = convertPointerToPaths();
+          text += "pathsSub = " + convertPathToString(pathsTwo.first) + "\n";
+          text += "pathsClp = " + convertPathToString(pathsTwo.second) + "\n";
+          //Paths64 solution;
+          //BuildPaths64(solution, nullptr);
+          //text += "pathsSolu = " + convertPathToString(solution) + "\n";
+          ofsFile << text << std::endl;
+      }
+      ofsFile.close();
   }
 
 }  // namespace clipper2lib

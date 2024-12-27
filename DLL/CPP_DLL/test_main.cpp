@@ -796,6 +796,31 @@ static void test14()
     return;
 }
 
+//≤‚ ‘writeErrorData ‰≥ˆ
+static void test15()
+{
+    vector<vector<Eigen::Vector2d>> poly0 = { 
+        {
+        Vector2d(0,0),
+        Vector2d(10,0),
+        Vector2d(0,10),
+        }, 
+        {
+        Vector2d(2,2),
+        Vector2d(8,2),
+        Vector2d(2,8),
+        }, 
+    };
+    vector<vector<Eigen::Vector2d>> poly1 = { {
+        Vector2d(0,0),
+        Vector2d(10,0),
+        Vector2d(10,10),
+    } };
+    CPathsD c_solu = nullptr;
+    BooleanOpD(Clipper::Union, EvenOdd, createCPaths(poly0), createCPaths(poly1), c_solu, 8);
+    vector<vector<Eigen::Vector2d>> solution0 = convertCPaths(c_solu);
+    return;
+}
 
 static int _enrol = []()
 {
@@ -810,8 +835,9 @@ static int _enrol = []()
     //test8();
     //test9();
     //test12();
-    test13();
+    //test13();
     //test14();
+    test15();
     return 0;
 }();
 

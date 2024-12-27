@@ -279,7 +279,10 @@ namespace Clipper2Lib {
 		size_t maxtime_ = 1000;
 		long timeout_ = 3; //second, more than force to exit
 		clock_t timestart_; //1000ms, <time.h>
-		void writeErrorData(const std::string& filename = {});
+		int precision_;
+		ClipType cliptype() const { return cliptype_; }
+		std::pair<Paths64, Paths64> convertPointerToPaths() const;
+		//void writeErrorData(const std::string& filename = {}) const;
 #endif
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);
 		void CleanCollinear(OutRec* outrec);
@@ -302,6 +305,7 @@ namespace Clipper2Lib {
 		bool ReverseSolution() const { return reverse_solution_; };
 		void Clear();
 		void AddReuseableData(const ReuseableDataContainer64& reuseable_data);
+		void writeErrorData(const std::string& filename = {}) const;
 #ifdef USINGZ
 		int64_t DefaultZ = 0;
 #endif
@@ -480,6 +484,10 @@ namespace Clipper2Lib {
 #ifdef USINGZ
 		void SetZCallback(ZCallback64 cb) { zCallback_ = cb; }
 #endif
+		int& precision()
+		{
+			return precision_;
+		}
 
 		void AddSubject(const Paths64& subjects)
 		{
