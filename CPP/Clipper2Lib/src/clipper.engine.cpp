@@ -2131,23 +2131,30 @@ namespace Clipper2Lib {
         return true;
 #ifdef USING_HORIZON_PROCESS
     //avoid closed loop circuit
-    size_t circleCount = 0, maxTime = 100; //force break loop, cause multi duplication profile
+    size_t circleCount = 0; //force break loop, cause multi duplication profile
     std::map<int64_t, size_t> repeatRecord;
+    timestart_ = std::clock();
 #endif
     while (succeeded_)
     {
 #ifdef USING_HORIZON_PROCESS
         circleCount++;
-        if (maxTime < circleCount) //trigger check
+        if (maxtime_ < circleCount) //trigger check
         {
             if (repeatRecord.find(y) == repeatRecord.end())
                 repeatRecord.emplace(y, 1);
             else
             {
                 repeatRecord[y]++;
-                if (maxTime < repeatRecord[y])
+                if (maxtime_ < repeatRecord[y])
                     break;
             }
+        }
+        if (circleCount % 100 == 0)
+        {
+            clock_t now = std::clock();
+            if (timeout_ * CLOCKS_PER_SEC < now - timestart_)
+                break;
         }
 #endif //USING_HORIZON_PROCESS
       InsertLocalMinimaIntoAEL(y);
@@ -2312,8 +2319,18 @@ namespace Clipper2Lib {
 
   void ClipperBase::ProcessHorzJoins()
   {
+    int circleCount = 0;
     for (const HorzJoin& j : horz_join_list_)
     {
+#ifdef USING_HORIZON_PROCESS
+        circleCount++;
+        if (circleCount % 100 == 0)
+        {
+            clock_t now = std::clock();
+            if (2 * timeout_ * CLOCKS_PER_SEC < now - timestart_)
+                break;
+        }
+#endif //USING_HORIZON_PROCESS
       OutRec* or1 = GetRealOutRec(j.op1->outrec);
       OutRec* or2 = GetRealOutRec(j.op2->outrec);
 
@@ -2501,9 +2518,19 @@ namespace Clipper2Lib {
     //Now as we process these intersections, we must sometimes adjust the order
     //to ensure that intersecting edges are always adjacent ...
 
+    int circleCount = 0;
     IntersectNodeList::iterator node_iter, node_iter2;
     for (node_iter = intersect_nodes_.begin(); node_iter != intersect_nodes_.end(); ++node_iter)
     {
+#ifdef USING_HORIZON_PROCESS
+        circleCount++;
+        if (circleCount % 100 == 0)
+        {
+            clock_t now = std::clock();
+            if (timeout_ * CLOCKS_PER_SEC < now - timestart_)
+                break;
+        }
+#endif //USING_HORIZON_PROCESS
       if (!EdgesAdjacentInAEL(*node_iter))
       {
         node_iter2 = node_iter + 1;

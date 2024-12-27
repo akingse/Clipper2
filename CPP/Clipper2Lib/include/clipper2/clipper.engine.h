@@ -275,6 +275,11 @@ namespace Clipper2Lib {
 		OutRecList outrec_list_; //pointers in case list memory reallocated
 #ifdef USING_HORIZON_PROCESS
 		std::map<int64_t, HorzSegment> horizon_record_; //to process horizon parallel
+		//outtime protect
+		size_t maxtime_ = 1000;
+		long timeout_ = 3; //second, more than force to exit
+		clock_t timestart_; //1000ms, <time.h>
+		void writeErrorData(const std::string& filename = {});
 #endif
 		bool ExecuteInternal(ClipType ct, FillRule ft, bool use_polytrees);
 		void CleanCollinear(OutRec* outrec);
