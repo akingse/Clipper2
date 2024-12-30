@@ -276,11 +276,11 @@ namespace Clipper2Lib {
 #ifdef USING_HORIZON_PROCESS
 		std::map<int64_t, HorzSegment> horizon_record_; //to process horizon parallel
 		//outtime protect
-		size_t maxtime_ = 1000;
+		size_t maxtime_ = 1000; //means count times
 		long timeout_ = 3; //second, more than force to exit
 		clock_t timestart_; //1000ms, <time.h>
-		int precision_;
-		ClipType cliptype() const { return cliptype_; }
+		int precision_ = 8;//default
+		bool overtime_ = false;
 		std::pair<Paths64, Paths64> convertPointerToPaths() const;
 		//void writeErrorData(const std::string& filename = {}) const;
 #endif
@@ -305,7 +305,10 @@ namespace Clipper2Lib {
 		bool ReverseSolution() const { return reverse_solution_; };
 		void Clear();
 		void AddReuseableData(const ReuseableDataContainer64& reuseable_data);
+		//for debug
 		void writeErrorData(const std::string& filename = {}) const;
+		ClipType cliptype() const { return cliptype_; }
+        bool overtime() { return overtime_; }
 #ifdef USINGZ
 		int64_t DefaultZ = 0;
 #endif
@@ -485,6 +488,10 @@ namespace Clipper2Lib {
 		void SetZCallback(ZCallback64 cb) { zCallback_ = cb; }
 #endif
 		int& precision()
+		{
+			return precision_;
+		}
+		const int precision() const
 		{
 			return precision_;
 		}

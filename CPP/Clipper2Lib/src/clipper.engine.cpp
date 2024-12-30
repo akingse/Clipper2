@@ -2159,7 +2159,10 @@ namespace Clipper2Lib {
         {
             clock_t now = std::clock();
             if (timeout_ * CLOCKS_PER_SEC < now - timestart_)
+            {
+                overtime_ = true;
                 break;
+            }
         }
 #endif //USING_HORIZON_PROCESS
       InsertLocalMinimaIntoAEL(y);
@@ -2333,7 +2336,10 @@ namespace Clipper2Lib {
         {
             clock_t now = std::clock();
             if (2 * timeout_ * CLOCKS_PER_SEC < now - timestart_)
+            {
+                overtime_ = true;
                 break;
+            }
         }
 #endif //USING_HORIZON_PROCESS
       OutRec* or1 = GetRealOutRec(j.op1->outrec);
@@ -2533,7 +2539,10 @@ namespace Clipper2Lib {
         {
             clock_t now = std::clock();
             if (timeout_ * CLOCKS_PER_SEC < now - timestart_)
+            {
+                overtime_ = true;
                 break;
+            }
         }
 #endif //USING_HORIZON_PROCESS
       if (!EdgesAdjacentInAEL(*node_iter))
