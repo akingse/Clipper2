@@ -281,6 +281,7 @@ namespace Clipper2Lib {
 		clock_t timestart_; //1000ms, <time.h>
 		int precision_ = 8;//default
 		bool overtime_ = false;
+		bool repeatHorz_ = false;
 		std::pair<Paths64, Paths64> convertPointerToPaths() const;
 		//void writeErrorData(const std::string& filename = {}) const;
 #endif
